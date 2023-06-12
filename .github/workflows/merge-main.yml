@@ -49,7 +49,6 @@ jobs:
         include:
           - name: backend
             file: backend/openshift.deploy.yml
-            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:test
             overwrite: true
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.1.1
@@ -76,7 +75,6 @@ jobs:
         include:
           - name: backend
             file: backend/openshift.deploy.yml
-            parameters: -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:test
             overwrite: true
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.1.1

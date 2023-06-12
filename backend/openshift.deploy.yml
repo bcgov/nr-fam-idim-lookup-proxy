@@ -41,12 +41,6 @@ parameters:
   - name: PROMOTE
     description: Image (namespace/name:tag) to promote/import
     value: bcgov/quickstart-openshift/backend:test
-  - name: PROMOTE_MIGRATION
-    description: Image (namespace/name:tag) for migration to promote/import
-    value: bcgov/quickstart-openshift/database-migrations:test
-  - name: COMPONENT_DB_MIGRATION
-    description: Component name for database migrations
-    value: database-migrations
 objects:
   - apiVersion: v1
     kind: ImageStream
@@ -62,22 +56,6 @@ objects:
           from:
             kind: DockerImage
             name: ${REGISTRY}/${PROMOTE}
-          referencePolicy:
-            type: Local
-  - apiVersion: v1
-    kind: ImageStream
-    metadata:
-      labels:
-        app: ${NAME}-${ZONE}
-      name: ${NAME}-${ZONE}-${COMPONENT_DB_MIGRATION}
-    spec:
-      lookupPolicy:
-        local: false
-      tags:
-        - name: ${IMAGE_TAG}
-          from:
-            kind: DockerImage
-            name: ${REGISTRY}/${PROMOTE_MIGRATION}
           referencePolicy:
             type: Local
   - apiVersion: v1
@@ -98,14 +76,6 @@ objects:
             from:
               kind: ImageStreamTag
               name: ${NAME}-${ZONE}-${COMPONENT}:${IMAGE_TAG}
-        - type: ImageChange
-          imageChangeParams:
-            automatic: true
-            containerNames:
-              - ${NAME}-${COMPONENT_DB_MIGRATION}
-            from:
-              kind: ImageStreamTag
-              name: ${NAME}-${ZONE}-${COMPONENT_DB_MIGRATION}:${IMAGE_TAG}
       selector:
         deploymentconfig: ${NAME}-${ZONE}-${COMPONENT}
       strategy:
@@ -150,16 +120,6 @@ objects:
                 initialDelaySeconds: 60
                 periodSeconds: 30
                 timeoutSeconds: 5
-          initContainers:
-            - name: ${NAME}-${COMPONENT_DB_MIGRATION}
-              image: ${NAME}-${ZONE}-${COMPONENT_DB_MIGRATION}:${IMAGE_TAG}
-              resources:
-                requests:
-                  cpu: ${CPU_REQUEST}
-                  memory: ${MEMORY_REQUEST}
-                limits:
-                  cpu: ${CPU_LIMIT}
-                  memory: ${MEMORY_LIMIT}
   - apiVersion: v1
     kind: Service
     metadata:
