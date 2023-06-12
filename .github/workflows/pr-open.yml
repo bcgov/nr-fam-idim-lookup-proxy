@@ -30,7 +30,6 @@ jobs:
 
             Any successful deployments (not always required) will be available below.
             [Backend](https://${{ env.PREFIX }}-backend.${{ env.DOMAIN }}/) available
-            [Frontend](https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/) available
 
             Once merged, code will be promoted and handed off to following workflow run.
             [Main Merge Workflow](https://github.com/${{ github.repository }}/actions/workflows/merge-main.yml)
@@ -75,8 +74,7 @@ jobs:
             overwrite: true
             parameters:
               -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
-              -p PROMOTE_MIGRATION=${{ github.repository }}/database-migrations:${{ github.event.number }}
-            triggers: ('database/' 'backend/' 'frontend/')
+            triggers: ('backend/')
     steps:
       - uses: bcgov-nr/action-deployer-openshift@v1.1.1
         with:
