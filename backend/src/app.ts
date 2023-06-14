@@ -7,9 +7,13 @@ import helmet from "helmet";
 import {VersioningType} from "@nestjs/common";
 
 export async function bootstrap() {
+  
+	// Nest app created.
   const app: NestExpressApplication = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: customLogger,
   });
+
+	// Config, middlewares and hooks.
   app.use(helmet());
   app.enableCors();
   app.set("trust proxy", 1);
@@ -18,14 +22,16 @@ export async function bootstrap() {
     type: VersioningType.URI,
     prefix: "api/v",
   });
-  const config = new DocumentBuilder()
-    .setTitle("Users example")
-    .setDescription("The user API description")
-    .setVersion("1.0")
-    .addTag("users")
-    .build();
 
+	// Swagger
+  const config = new DocumentBuilder()
+    .setTitle("IDIM Lookup Proxy API")
+    .setDescription("< TODO > - provide description when proxy implemented.")
+    .setVersion("1.0")
+    // .addTag("users")
+    .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document);
+
   return app;
 }

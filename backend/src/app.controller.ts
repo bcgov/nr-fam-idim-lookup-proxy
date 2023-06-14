@@ -1,12 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AppService } from './app.service';
 
-@Controller()
+@ApiTags('Hello World')
+@Controller('api/idim-proxy')
 export class AppController {
   constructor(private readonly appService: AppService) {}
-
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  
+  @Get('/hello-world/:yourName')
+  getHello(@Param('yourName') name: string) {
+    return this.appService.getHello(name);
   }
 }
