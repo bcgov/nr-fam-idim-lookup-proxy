@@ -10,10 +10,8 @@ services:
       - "npm i && npm run start"
     hostname: backend
     image: registry.access.redhat.com/ubi8/nodejs-18-minimal
-    links:
-      - database
     ports:
-      - "3001:3000"
+      - "3000:3000"
     volumes:
       - ./backend:/app:z
       - /app/node_modules
