@@ -13,7 +13,6 @@ services:
     volumes:
       - ./backend:/app:z
       - /app/node_modules
-    user: root
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
     working_dir: "/app"
