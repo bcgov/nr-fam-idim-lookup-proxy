@@ -4,8 +4,7 @@ FROM registry.access.redhat.com/ubi8/nodejs-18-minimal:1-49 AS builder
 # Install packages, build and keep only prod packages
 USER root
 WORKDIR /app
-COPY ./backend/*.json ./
-COPY ./backend/src /app/src
+COPY . ./
 RUN cd backend && npm ci --omit=dev --ignore-scripts && \
     npm run build
 
@@ -28,8 +27,8 @@ COPY --from=builder /usr/lib64/libbrotlicommon.so.1 /usr/lib64/
 
 # Copy over app
 WORKDIR /app
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/backend/node_modules ./node_modules
+COPY --from=builder /app/backend/dist ./dist
 
 # Port and health check
 EXPOSE 3000
