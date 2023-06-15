@@ -7,7 +7,7 @@ WORKDIR /app
 COPY *.json ./
 COPY ./src /app/src
 RUN npm ci --omit=dev --ignore-scripts && \
-    npm run build
+    cd backend && npm run build
 
 # Deployment container
 FROM registry.access.redhat.com/ubi8/ubi-micro:8.7-8
