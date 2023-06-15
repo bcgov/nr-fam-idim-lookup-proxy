@@ -5,7 +5,7 @@ FROM registry.access.redhat.com/ubi8/nodejs-18-minimal:1-49 AS builder
 USER root
 WORKDIR /app
 COPY . ./
-RUN npm ci --omit=dev --ignore-scripts && npm run build
+RUN npm ci --ignore-scripts && npm run build
 
 # Deployment container
 FROM registry.access.redhat.com/ubi8/ubi-micro:8.7-8
