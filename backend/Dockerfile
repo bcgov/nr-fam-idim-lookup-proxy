@@ -5,7 +5,7 @@ FROM registry.access.redhat.com/ubi8/nodejs-18-minimal:1-49 AS builder
 USER root
 WORKDIR /app
 COPY ./backend/*.json ./
-COPY ./backendsrc /app/src
+COPY ./backend/src /app/src
 RUN cd backend && npm ci --omit=dev --ignore-scripts && \
     npm run build
 
