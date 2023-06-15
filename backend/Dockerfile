@@ -4,10 +4,10 @@ FROM registry.access.redhat.com/ubi8/nodejs-18-minimal:1-49 AS builder
 # Install packages, build and keep only prod packages
 USER root
 WORKDIR /app
-COPY *.json ./
-COPY ./src /app/src
-RUN npm ci --omit=dev --ignore-scripts && \
-    cd backend && npm run build
+COPY ./backend/*.json ./
+COPY ./backendsrc /app/src
+RUN cd backend && npm ci --omit=dev --ignore-scripts && \
+    npm run build
 
 # Deployment container
 FROM registry.access.redhat.com/ubi8/ubi-micro:8.7-8
