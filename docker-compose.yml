@@ -6,6 +6,10 @@ services:
     build:
       context: backend
     container_name: backend
+    entrypoint:
+      - "sh"
+      - "-c"
+      - "npm i && npm run start:dev"
     hostname: backend
     image: registry.access.redhat.com/ubi8/nodejs-18-minimal
     ports:
