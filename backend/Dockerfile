@@ -10,7 +10,7 @@ RUN npm ci --omit=dev --ignore-scripts && \
     npm run build
 
 # Deployment container
-FROM registry.access.redhat.com/ubi8/ubi-micro:8.7-8
+FROM registry.access.redhat.com/ubi8/ubi-micro:8.8-1
 
 # Set node to production 
 ENV NODE_ENV production
