@@ -4,7 +4,7 @@ ENV NODE_ENV production
 # Install
 WORKDIR /app
 COPY *.json ./
-COPY . .
+COPY ./src /app/src
 RUN npm ci
 RUN npm run build
 
