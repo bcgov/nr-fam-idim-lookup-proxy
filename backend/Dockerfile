@@ -5,7 +5,8 @@ ENV NODE_ENV production
 WORKDIR /app
 COPY *.json ./
 COPY ./src /app/src
-RUN npm ci
+USER root
+RUN npm ci --ignore-scripts
 RUN npm run build
 
 # Expose and health check
