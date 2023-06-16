@@ -9,14 +9,14 @@ services:
     entrypoint:
       - "sh"
       - "-c"
-      - "npm i && npm run start:dev"
+      - "npm i && npm run start"
     hostname: backend
-    image: registry.access.redhat.com/ubi8/nodejs-18-minimal
+    image: node:18
     ports:
       - "3000:3000"
     volumes:
       - ./backend:/app:z
       - /app/node_modules
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/api" ]
     working_dir: "/app"
