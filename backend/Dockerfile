@@ -8,7 +8,7 @@ RUN npm ci --ignore-scripts
 RUN npm run build
 
 # Deployment container
-FROM gcr.io/distroless/nodejs:18
+FROM registry.access.redhat.com/ubi8/ubi-micro
 ENV NODE_ENV production
 
 # Copy over app
