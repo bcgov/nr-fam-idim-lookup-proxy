@@ -42,6 +42,34 @@ parameters:
     description: Image (namespace/name:tag) to promote/import
     value: bcgov/quickstart-openshift/backend:test
 objects:
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: allow-from-openshift-ingress
+      labels:
+        template: openshift-test
+    spec:
+      podSelector: {}
+      ingress:
+        - from:
+            - namespaceSelector:
+                matchLabels:
+                  network.openshift.io/policy-group: ingress
+      policyTypes:
+        - Ingress
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: allow-same-namespace
+      labels:
+        template: quickstart-network-security-policy
+    spec:
+      podSelector: {}
+      ingress:
+        - from:
+            - podSelector: {}
+      policyTypes:
+        - Ingress
   - apiVersion: v1
     kind: ImageStream
     metadata:
@@ -102,7 +130,7 @@ objects:
                   memory: ${MEMORY_LIMIT}
               readinessProbe:
                 httpGet:
-                  path: /
+                  path: /api/
                   port: 3000
                   scheme: HTTP
                 initialDelaySeconds: 5
@@ -114,7 +142,7 @@ objects:
                 successThreshold: 1
                 failureThreshold: 3
                 httpGet:
-                  path: /
+                  path: /api/
                   port: 3000
                   scheme: HTTP
                 initialDelaySeconds: 60
@@ -142,6 +170,7 @@ objects:
       name: ${NAME}-${ZONE}-${COMPONENT}
     spec:
       host: ${NAME}-${ZONE}-${COMPONENT}.${DOMAIN}
+      path: /api
       port:
         targetPort: 3000-tcp
       to:

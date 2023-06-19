@@ -14,9 +14,14 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello Backend!"', () => {
-      expect(appController.getHello()).toBe('Hello Backend!');
+  describe('getHello', () => {
+    it('should return "Hello <name> :), from Backend!"', () => {
+      let greeting_name = "Ian"
+      expect(appController.getHello(greeting_name)).toBe(`Hello ${greeting_name} :), from Backend!`);
+
+      greeting_name = ""
+      expect(appController.getHello(greeting_name)).toBe(`Hello :), from Backend!`);
+
     });
   });
 });
