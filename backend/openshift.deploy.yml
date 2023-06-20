@@ -6,7 +6,7 @@ labels:
 parameters:
   - name: NAME
     description: Module name
-    value: quickstart-openshift
+    value: nr-fam-idim-lookup-proxy
   - name: COMPONENT
     description: Component name
     value: backend
@@ -40,7 +40,7 @@ parameters:
     value: bcgov
   - name: PROMOTE
     description: Image (namespace/name:tag) to promote/import
-    value: bcgov/quickstart-openshift/backend:test
+    value: bcgov/nr-fam-idim-lookup-proxy/backend:test
 objects:
   - apiVersion: networking.k8s.io/v1
     kind: NetworkPolicy
