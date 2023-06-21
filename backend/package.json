@@ -34,7 +34,7 @@
     "swagger-ui-express": "^4.6.0",
     "winston": "^3.8.2",
     "nest-winston": "^1.9.1",
-    "helmet": "^6.1.5"
+    "helmet": "^7.0.0"
   },
   "devDependencies": {
     "@nestjs/schematics": "^9.1.0",
