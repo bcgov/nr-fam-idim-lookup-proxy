@@ -34,32 +34,36 @@ export class IdimWebserviceService {
             Buffer.from(
                 this.idimWebServiceUsername + ':' + this.idimWebServicePassword
             ).toString('base64');
-        const client = await soap.createClientAsync(this.idimWebServiceUrl, {
-            wsdl_headers: { Authorization: auth },
-        });
-        client.addHttpHeader('Authorization', auth);
-
-        // set xml schema parameters for the request
-        const requestData = {
-            internalAccountSearchRequest: {
-                onlineServiceId: this.idimWebServiceID,
-                // who is sending the request
-                requesterAccountTypeCode,
-                requesterUserId,
-                // some config parameter
-                pagination: { pageSizeMaximum: '20', pageIndex: '1' },
-                sort: { direction: 'Ascending', onProperty: 'UserId' },
-                // who we search for, exact match userID
-                accountMatch: {
-                    userId: {
-                        value: userId,
-                        matchPropertyUsing: 'Exact',
-                    },
-                },
-            },
-        };
 
         try {
+            const client = await soap.createClientAsync(
+                this.idimWebServiceUrl,
+                {
+                    wsdl_headers: { Authorization: auth },
+                }
+            );
+            client.addHttpHeader('Authorization', auth);
+
+            // set xml schema parameters for the request
+            const requestData = {
+                internalAccountSearchRequest: {
+                    onlineServiceId: this.idimWebServiceID,
+                    // who is sending the request
+                    requesterAccountTypeCode,
+                    requesterUserId,
+                    // some config parameter
+                    pagination: { pageSizeMaximum: '20', pageIndex: '1' },
+                    sort: { direction: 'Ascending', onProperty: 'UserId' },
+                    // who we search for, exact match userID
+                    accountMatch: {
+                        userId: {
+                            value: userId,
+                            matchPropertyUsing: 'Exact',
+                        },
+                    },
+                },
+            };
+
             return new Promise((resolve, reject) => {
                 client.BCeIDService.BCeIDServiceSoap.searchInternalAccount(
                     requestData,
@@ -72,7 +76,7 @@ export class IdimWebserviceService {
                                             'IDIM web service call error: ' +
                                             error,
                                     },
-                                    HttpStatus.BAD_REQUEST
+                                    HttpStatus.INTERNAL_SERVER_ERROR
                                 )
                             );
                         }
@@ -114,7 +118,10 @@ export class IdimWebserviceService {
                 );
             });
         } catch (error) {
-            return new HttpException({ error: error }, HttpStatus.BAD_REQUEST);
+            return new HttpException(
+                { error: error },
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
     }
 }
