@@ -55,6 +55,14 @@ parameters:
     required: true
 objects:
   - apiVersion: networking.k8s.io/v1
+    kind: Secret
+    metadata:
+      name: ${NAME}-${ZONE}-${COMPONENT}
+      labels:
+        app: ${NAME}-${ZONE}
+    stringData:
+      idim-web-service-password: "${IDIM_WEB_SERVICE_PASSWORD}"
+  - apiVersion: networking.k8s.io/v1
     kind: NetworkPolicy
     metadata:
       name: allow-from-openshift-ingress
@@ -138,7 +146,10 @@ objects:
                 - name: IDIM_WEB_SERVICE_USERNAME
                   value: ${IDIM_WEB_SERVICE_USERNAME}
                 - name: IDIM_WEB_SERVICE_PASSWORD
-                  value: ${IDIM_WEB_SERVICE_PASSWORD}
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}-${ZONE}-${COMPONENT}
+                      key: idim-web-service-password
               ports:
                 - containerPort: 3000
                   protocol: TCP
