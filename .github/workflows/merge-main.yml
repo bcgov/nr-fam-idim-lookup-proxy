@@ -61,6 +61,10 @@ jobs:
           parameters:
             -p ZONE=test -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:test
             -p NAME=${{ github.event.repository.name }} ${{ matrix.parameters }}
+            -p IDIM_WEB_SERVICE_URL=${{ vars.IDIM_WEB_SERVICE_URL }}
+            -p IDIM_WEB_SERVICE_ID=${{ secrets.IDIM_WEB_SERVICE_ID }}
+            -p IDIM_WEB_SERVICE_USERNAME=${{ secrets.IDIM_WEB_SERVICE_USERNAME }}
+            -p IDIM_WEB_SERVICE_PASSWORD=${{ secrets.IDIM_WEB_SERVICE_PASSWORD }}
           penetration_test: true
 
   deploys-prod:
@@ -87,6 +91,10 @@ jobs:
           parameters:
             -p ZONE=prod -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:test
             -p NAME=${{ github.event.repository.name }} ${{ matrix.parameters }}
+            -p IDIM_WEB_SERVICE_URL=${{ vars.IDIM_WEB_SERVICE_URL }}
+            -p IDIM_WEB_SERVICE_ID=${{ secrets.IDIM_WEB_SERVICE_ID }}
+            -p IDIM_WEB_SERVICE_USERNAME=${{ secrets.IDIM_WEB_SERVICE_USERNAME }}
+            -p IDIM_WEB_SERVICE_PASSWORD=${{ secrets.IDIM_WEB_SERVICE_PASSWORD }}
           penetration_test: false
 
   image-promotions:
