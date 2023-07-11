@@ -119,7 +119,7 @@ export class IdimWebserviceService {
             });
         } catch (error) {
             return new HttpException(
-                { error: error },
+                { error: 'IDIM web service error: ' + error },
                 HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
