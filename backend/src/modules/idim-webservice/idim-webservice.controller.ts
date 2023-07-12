@@ -4,8 +4,10 @@ import {
     Query,
     HttpException,
     HttpStatus,
+    UseGuards,
 } from '@nestjs/common';
-import { ApiResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiQuery, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/auth.guard';
 import { IdimWebserviceService } from './idim-webservice.service';
 import {
     IDIRUserResponse,
@@ -13,6 +15,8 @@ import {
 } from './idim-webservice.dto';
 
 @ApiTags('IDIM Webservice')
+@UseGuards(AuthGuard)
+@ApiBearerAuth('bearerAuth')
 @Controller('idim-webservice')
 export class IdimWebserviceController {
     constructor(

@@ -91,5 +91,6 @@ jobs:
             -p IDIM_WEB_SERVICE_ID=${{ secrets.IDIM_WEB_SERVICE_ID }}
             -p IDIM_WEB_SERVICE_USERNAME=${{ secrets.IDIM_WEB_SERVICE_USERNAME }}
             -p IDIM_WEB_SERVICE_PASSWORD=${{ secrets.IDIM_WEB_SERVICE_PASSWORD }}
+            -p API_TOKEN=${{ secrets.API_TOKEN }}
             ${{ matrix.parameters }}
           triggers: ${{ matrix.triggers }}
