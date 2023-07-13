@@ -79,6 +79,8 @@ export class IdimWebserviceService {
                                     HttpStatus.INTERNAL_SERVER_ERROR
                                 )
                             );
+
+                            return null;
                         }
 
                         if (
@@ -94,6 +96,8 @@ export class IdimWebserviceService {
                                     HttpStatus.BAD_REQUEST
                                 )
                             );
+
+                            return null;
                         }
 
                         if (

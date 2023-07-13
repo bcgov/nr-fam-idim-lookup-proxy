@@ -26,6 +26,7 @@ describe('IdimWebserviceController', () => {
         const TEST_IDIR_USERID = 'CMENG';
         const TEST_IDIR_USERID_NON_EXIST = 'test';
         const TEST_REQUESTER_TYPE_CODE = 'Internal';
+        const TEST_REQUESTER_TYPE_CODE_NOT_SUPPORT = '';
 
         it('find non existing idir user', async () => {
             const result = await controller.verifyIdirUser(
@@ -56,6 +57,16 @@ describe('IdimWebserviceController', () => {
                     TEST_REQUESTER_TYPE_CODE
                 )
             ).rejects.toThrowError('Requester account cannot be found.');
+        });
+
+        it('find without requester type code', async () => {
+            await expect(
+                controller.verifyIdirUser(
+                    TEST_IDIR_USERID,
+                    TEST_IDIR_USERID_NON_EXIST,
+                    TEST_REQUESTER_TYPE_CODE_NOT_SUPPORT
+                )
+            ).rejects.toThrowError('Http Exception');
         });
     });
 });
