@@ -30,7 +30,6 @@
     "dotenv": "^16.1.4",
     "helmet": "^7.0.0",
     "nest-winston": "^1.9.1",
-    "reflect-metadata": "^0.1.13",
     "rimraf": "^5.0.0",
     "rxjs": "^7.8.0",
     "soap": "^1.0.0",

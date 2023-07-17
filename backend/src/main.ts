@@ -25,18 +25,9 @@ async function bootstrap() {
     // Swagger
     const config = new DocumentBuilder()
         .setTitle('IDIM Lookup Proxy API')
-        .setDescription(
-            '< TODO > - provide description when proxy implemented.'
-        )
+        .setDescription('IDIM Web Service Proxy API')
         .setVersion('1.0')
-        .addBearerAuth(
-            {
-                type: 'http',
-                scheme: 'bearer',
-                in: 'header',
-            },
-            'bearerAuth'
-        )
+        .addBearerAuth()
         .build();
 
     const document = SwaggerModule.createDocument(app, config);

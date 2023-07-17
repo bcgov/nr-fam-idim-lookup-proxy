@@ -24,7 +24,7 @@ export class IdimWebserviceService {
                 {
                     error: 'Missing IDIM web service crednetials in the environment variables',
                 },
-                HttpStatus.BAD_REQUEST
+                HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
 
@@ -68,8 +68,9 @@ export class IdimWebserviceService {
                 client.BCeIDService.BCeIDServiceSoap.searchInternalAccount(
                     requestData,
                     function (error, foundUser) {
+                        // this will be any error from the IDIM server side
                         if (error) {
-                            reject(
+                            return reject(
                                 new HttpException(
                                     {
                                         error:
@@ -79,15 +80,14 @@ export class IdimWebserviceService {
                                     HttpStatus.INTERNAL_SERVER_ERROR
                                 )
                             );
-
-                            return null;
                         }
 
+                        // this will be any error return by the web service, for example if we provided an non existing requestor id
                         if (
                             foundUser.searchInternalAccountResult.code ==
                             'Failed'
                         ) {
-                            reject(
+                            return reject(
                                 new HttpException(
                                     {
                                         status: HttpStatus.BAD_REQUEST,
@@ -96,8 +96,6 @@ export class IdimWebserviceService {
                                     HttpStatus.BAD_REQUEST
                                 )
                             );
-
-                            return null;
                         }
 
                         if (

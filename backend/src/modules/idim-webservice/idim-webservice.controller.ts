@@ -16,7 +16,7 @@ import {
 
 @ApiTags('IDIM Webservice')
 @UseGuards(AuthGuard)
-@ApiBearerAuth('bearerAuth')
+@ApiBearerAuth()
 @Controller('idim-webservice')
 export class IdimWebserviceController {
     constructor(
