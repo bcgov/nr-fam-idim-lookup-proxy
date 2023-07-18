@@ -10,17 +10,17 @@ import { Request } from 'express';
 export class AuthGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
-        const token = this.extractTokenFromHeader(request);
+        const key = this.extractApiKeyFromHeader(request);
 
-        if (!token || token != process.env.API_TOKEN) {
+        if (!key || key != process.env.API_KEY) {
             throw new UnauthorizedException();
         }
 
         return true;
     }
 
-    private extractTokenFromHeader(request: Request): string | undefined {
-        const [type, token] = request.headers.authorization?.split(' ') ?? [];
-        return type === 'Bearer' ? token : undefined;
+    private extractApiKeyFromHeader(request: Request): string | undefined {
+        const key = request.header('x-api-key');
+        return key as string;
     }
 }

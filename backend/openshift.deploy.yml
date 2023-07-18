@@ -53,7 +53,7 @@ parameters:
   - name: IDIM_WEB_SERVICE_PASSWORD
     description: The password of the IDIM web serivce
     required: true
-  - name: API_TOKEN
+  - name: API_KEY
     description: The bearer token in order to call the api
     required: true
 objects:
@@ -65,7 +65,7 @@ objects:
         app: ${NAME}-${ZONE}
     stringData:
       idim-web-service-password: "${IDIM_WEB_SERVICE_PASSWORD}"
-      api-token: "${API_TOKEN}"
+      api-token: "${API_KEY}"
   - apiVersion: networking.k8s.io/v1
     kind: NetworkPolicy
     metadata:
@@ -154,7 +154,7 @@ objects:
                     secretKeyRef:
                       name: ${NAME}-${ZONE}-${COMPONENT}
                       key: idim-web-service-password
-                - name: API_TOKEN
+                - name: API_KEY
                   valueFrom:
                     secretKeyRef:
                       name: ${NAME}-${ZONE}-${COMPONENT}

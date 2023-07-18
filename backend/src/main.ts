@@ -27,7 +27,10 @@ async function bootstrap() {
         .setTitle('IDIM Lookup Proxy API')
         .setDescription('IDIM Web Service Proxy API')
         .setVersion('1.0')
-        .addBearerAuth()
+        .addApiKey(
+            { type: 'apiKey', name: 'X-API-KEY', in: 'header' },
+            'X-API-KEY'
+        )
         .build();
 
     const document = SwaggerModule.createDocument(app, config);
