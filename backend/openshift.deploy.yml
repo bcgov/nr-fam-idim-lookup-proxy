@@ -54,7 +54,7 @@ parameters:
     description: The password of the IDIM web serivce
     required: true
   - name: API_KEY
-    description: The bearer token in order to call the api
+    description: The api key in order to call the api
     required: true
 objects:
   - apiVersion: v1
