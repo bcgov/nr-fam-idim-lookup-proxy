@@ -41,7 +41,31 @@ parameters:
   - name: PROMOTE
     description: Image (namespace/name:tag) to promote/import
     value: bcgov/nr-fam-idim-lookup-proxy/backend:test
+  - name: IDIM_WEB_SERVICE_URL
+    description: The url of the IDIM web serivce
+    required: true
+  - name: IDIM_WEB_SERVICE_ID
+    description: The service id of the IDIM web serivce
+    required: true
+  - name: IDIM_WEB_SERVICE_USERNAME
+    description: The username of the IDIM web serivce
+    required: true
+  - name: IDIM_WEB_SERVICE_PASSWORD
+    description: The password of the IDIM web serivce
+    required: true
+  - name: API_KEY
+    description: The api key in order to call the api
+    required: true
 objects:
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: ${NAME}-${ZONE}-${COMPONENT}
+      labels:
+        app: ${NAME}-${ZONE}
+    stringData:
+      idim-web-service-password: "${IDIM_WEB_SERVICE_PASSWORD}"
+      api-token: "${API_KEY}"
   - apiVersion: networking.k8s.io/v1
     kind: NetworkPolicy
     metadata:
@@ -118,6 +142,23 @@ objects:
             - image: ${NAME}-${ZONE}-${COMPONENT}:${IMAGE_TAG}
               imagePullPolicy: Always
               name: ${NAME}
+              env:
+                - name: IDIM_WEB_SERVICE_URL
+                  value: ${IDIM_WEB_SERVICE_URL}
+                - name: IDIM_WEB_SERVICE_ID
+                  value: ${IDIM_WEB_SERVICE_ID}
+                - name: IDIM_WEB_SERVICE_USERNAME
+                  value: ${IDIM_WEB_SERVICE_USERNAME}
+                - name: IDIM_WEB_SERVICE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}-${ZONE}-${COMPONENT}
+                      key: idim-web-service-password
+                - name: API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${NAME}-${ZONE}-${COMPONENT}
+                      key: api-token
               ports:
                 - containerPort: 3000
                   protocol: TCP
