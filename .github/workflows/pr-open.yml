@@ -49,7 +49,7 @@ jobs:
             build_context: ./backend
     steps:
       - uses: actions/checkout@v3
-      - uses: bcgov-nr/action-builder-ghcr@v1.1.2
+      - uses: bcgov-nr/action-builder-ghcr@v1.2.0
         with:
           package: ${{ matrix.package }}
           tag: ${{ github.event.number }}
