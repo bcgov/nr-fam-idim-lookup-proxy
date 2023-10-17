@@ -103,17 +103,21 @@ export class IdimWebserviceService {
                                 .totalItems > 0
                         ) {
                             const response = new IDIRUserResponse();
+                            const userInfo =
+                                foundUser.searchInternalAccountResult
+                                    .accountList.BCeIDAccount[0];
                             response.found = true;
-                            response.userId =
-                                foundUser.searchInternalAccountResult.accountList.BCeIDAccount[0].userId.value;
-                            response.displayName =
-                                foundUser.searchInternalAccountResult.accountList.BCeIDAccount[0].displayName.value;
+                            response.userId = userInfo.userId.value;
+                            response.displayName = userInfo.displayName.value;
+                            response.displayName = userInfo.displayName.value;
+                            response.firstName =
+                                userInfo.individualIdentity.name.firstname.value;
+                            response.lastName =
+                                userInfo.individualIdentity.name.surname.value;
                             resolve(response);
                         } else {
                             const response = new IDIRUserResponse();
                             response.found = false;
-                            response.userId = null;
-                            response.displayName = null;
                             resolve(response);
                         }
                     }

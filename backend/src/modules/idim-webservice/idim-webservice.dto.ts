@@ -13,4 +13,10 @@ export class IDIRUserResponse {
 
     @ApiProperty()
     displayName: string;
+
+    @ApiProperty()
+    firstName: string;
+
+    @ApiProperty()
+    lastName: string;
 }
