@@ -109,7 +109,6 @@ export class IdimWebserviceService {
                             response.found = true;
                             response.userId = userInfo.userId.value;
                             response.displayName = userInfo.displayName.value;
-                            response.displayName = userInfo.displayName.value;
                             response.firstName =
                                 userInfo.individualIdentity.name.firstname.value;
                             response.lastName =
