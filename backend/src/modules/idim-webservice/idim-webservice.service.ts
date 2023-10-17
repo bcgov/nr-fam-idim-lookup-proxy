@@ -118,6 +118,8 @@ export class IdimWebserviceService {
                         } else {
                             const response = new IDIRUserResponse();
                             response.found = false;
+                            response.userId = null;
+                            response.displayName = null;
                             resolve(response);
                         }
                     }
