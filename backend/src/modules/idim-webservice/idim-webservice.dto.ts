@@ -19,4 +19,7 @@ export class IDIRUserResponse {
 
     @ApiProperty()
     lastName: string;
+
+    @ApiProperty()
+    email: string;
 }

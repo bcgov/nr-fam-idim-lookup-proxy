@@ -113,6 +113,7 @@ export class IdimWebserviceService {
                                 userInfo.individualIdentity.name.firstname.value;
                             response.lastName =
                                 userInfo.individualIdentity.name.surname.value;
+                            response.email = userInfo.contact.email.value;
                             resolve(response);
                         } else {
                             const response = new IDIRUserResponse();
