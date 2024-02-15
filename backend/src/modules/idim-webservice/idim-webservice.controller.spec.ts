@@ -35,8 +35,8 @@ describe('IdimWebserviceController', () => {
                 TEST_REQUESTER_TYPE_CODE
             );
             expect((result as IDIRUserResponse).found).toBe(false);
-            expect((result as IDIRUserResponse).userId).toBe(null);
-            expect((result as IDIRUserResponse).displayName).toBe(null);
+            expect((result as IDIRUserResponse).userId).toBe(TEST_IDIR_USERID);
+            expect((result as IDIRUserResponse).firstName).toBe(null);
         });
 
         it('find existing idir user', async () => {

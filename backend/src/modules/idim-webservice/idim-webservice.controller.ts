@@ -41,4 +41,23 @@ export class IdimWebserviceController {
             requesterAccountTypeCode
         );
     }
+
+    @Get('bceid')
+    @ApiResponse({ status: HttpStatus.OK, type: IDIRUserResponse })
+    @ApiQuery({
+        name: 'requesterAccountTypeCode',
+        enum: RequesterAccountTypeCode,
+    })
+    async verifyBceidUser(
+        @Query('userId') userId: string,
+        @Query('requesterUserGuid') requesterUserGuid: string,
+        @Query('requesterAccountTypeCode')
+        requesterAccountTypeCode: string
+    ): Promise<HttpException | IDIRUserResponse> {
+        return this.idimWebserviceService.verifyBceidUser(
+            userId,
+            requesterUserGuid,
+            requesterAccountTypeCode
+        );
+    }
 }
