@@ -51,7 +51,7 @@ jobs:
             file: backend/openshift.deploy.yml
             overwrite: true
     steps:
-      - uses: bcgov-nr/action-deployer-openshift@v2.0.0
+      - uses: bcgov-nr/action-deployer-openshift@v2.1.0
         with:
           file: ${{ matrix.file }}
           oc_namespace: ${{ vars.OC_NAMESPACE }}
@@ -82,7 +82,7 @@ jobs:
             file: backend/openshift.deploy.yml
             overwrite: true
     steps:
-      - uses: bcgov-nr/action-deployer-openshift@v2.0.0
+      - uses: bcgov-nr/action-deployer-openshift@v2.1.0
         with:
           file: ${{ matrix.file }}
           oc_namespace: ${{ vars.OC_NAMESPACE }}
@@ -110,7 +110,7 @@ jobs:
       matrix:
         component: [backend]
     steps:
-      - uses: shrink/actions-docker-registry-tag@v3
+      - uses: shrink/actions-docker-registry-tag@v4
         with:
           registry: ghcr.io
           repository: ${{ github.repository }}/${{ matrix.component }}
