@@ -129,7 +129,7 @@ export class IdimWebserviceService {
                         } else {
                             const response = new IDIRUserResponse();
                             response.found = false;
-                            response.userId = null;
+                            response.userId = userId;
                             resolve(response);
                         }
                     }
@@ -201,13 +201,21 @@ export class IdimWebserviceService {
                             return resolve(response);
                         }
 
-                        // this will be any error return by the web service, for example if we provided an non existing requestor id, or permission issue
+                        // this will be any error return by the web service
+                        // for example if we provided an non existing requestor id, or permission issue
                         if (foundUser.getAccountDetailResult.code == 'Failed') {
                             return reject(
                                 new HttpException(
                                     {
                                         status: HttpStatus.BAD_REQUEST,
-                                        ...foundUser.getAccountDetailResult,
+                                        code: foundUser.getAccountDetailResult
+                                            .code,
+                                        failureCode:
+                                            foundUser.getAccountDetailResult
+                                                .failureCode,
+                                        message:
+                                            foundUser.getAccountDetailResult
+                                                .message,
                                     },
                                     HttpStatus.BAD_REQUEST
                                 )
