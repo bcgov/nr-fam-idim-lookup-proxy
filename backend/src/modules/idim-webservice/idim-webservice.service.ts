@@ -13,7 +13,7 @@ export class IdimWebserviceService {
     private idimWebServiceUsername = process.env.IDIM_WEB_SERVICE_USERNAME;
     private idimWebServicePassword = process.env.IDIM_WEB_SERVICE_PASSWORD;
 
-    private hasAllRequiredParams() {
+    private hasAllRequiredParams(): Boolean {
         if (
             !this.idimWebServiceUrl ||
             !this.idimWebServiceID ||
@@ -147,7 +147,7 @@ export class IdimWebserviceService {
         userId: string,
         requesterUserGuid: string,
         requesterAccountTypeCode: string
-    ): Promise<HttpException | IDIRUserResponse> {
+    ): Promise<HttpException | BCEIDUserResponse> {
         if (!this.hasAllRequiredParams()) {
             return new HttpException(
                 {
