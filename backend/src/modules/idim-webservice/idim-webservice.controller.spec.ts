@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import 'dotenv/config';
 import { IdimWebserviceController } from './idim-webservice.controller';
 import { IdimWebserviceService } from './idim-webservice.service';
-import { IDIRUserResponse, RequesterAccountTypeCode } from './idim-webservice.dto';
+import { IDIRUserResponse, BCEIDUserResponse, RequesterAccountTypeCode } from './idim-webservice.dto';
 
 describe('IdimWebserviceController', () => {
     let controller: IdimWebserviceController;
@@ -83,9 +83,9 @@ describe('IdimWebserviceController', () => {
                 TEST_REQUESTER_IDIR_GUID,
                 RequesterAccountTypeCode.Internal
             );
-            expect((result as IDIRUserResponse).found).toBe(false);
-            expect((result as IDIRUserResponse).userId).toBe(TEST_BUSINESS_BCEID_USERID_NON_EXIST);
-            expect((result as IDIRUserResponse).firstName).toBe(undefined);
+            expect((result as BCEIDUserResponse).found).toBe(false);
+            expect((result as BCEIDUserResponse).userId).toBe(TEST_BUSINESS_BCEID_USERID_NON_EXIST);
+            expect((result as BCEIDUserResponse).firstName).toBe(undefined);
         });
 
         it('find using non existing requester guid', async () => {
@@ -114,9 +114,9 @@ describe('IdimWebserviceController', () => {
                 TEST_REQUESTER_IDIR_GUID,
                 RequesterAccountTypeCode.Internal
             );
-            expect((result as IDIRUserResponse).found).toBe(true);
-            expect((result as IDIRUserResponse).userId).toBe(TEST_BUSINESS_BCEID_USERID);
-            expect((result as IDIRUserResponse).firstName).not.toBe(null);
+            expect((result as BCEIDUserResponse).found).toBe(true);
+            expect((result as BCEIDUserResponse).userId).toBe(TEST_BUSINESS_BCEID_USERID);
+            expect((result as BCEIDUserResponse).firstName).not.toBe(null);
         });
     });
 });
