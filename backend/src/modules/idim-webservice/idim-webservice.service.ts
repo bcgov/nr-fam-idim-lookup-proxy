@@ -13,15 +13,20 @@ export class IdimWebserviceService {
     private idimWebServiceUsername = process.env.IDIM_WEB_SERVICE_USERNAME;
     private idimWebServicePassword = process.env.IDIM_WEB_SERVICE_PASSWORD;
 
-    private hasAllRequiredParams(): Boolean {
+    private checkRequiredIDIMCredentials() {
         if (
             !this.idimWebServiceUrl ||
             !this.idimWebServiceID ||
             !this.idimWebServiceUsername ||
             !this.idimWebServicePassword
-        )
-            return false;
-        return true;
+        ) {
+            throw new HttpException(
+                {
+                    error: 'Missing IDIM web service crednetials in the environment variables',
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
     }
 
     private async getSoapClient() {
@@ -44,15 +49,7 @@ export class IdimWebserviceService {
         requesterUserId: string,
         requesterAccountTypeCode: string
     ): Promise<HttpException | IDIRUserResponse> {
-        if (!this.hasAllRequiredParams()) {
-            return new HttpException(
-                {
-                    error: 'Missing IDIM web service crednetials in the environment variables',
-                },
-                HttpStatus.INTERNAL_SERVER_ERROR
-            );
-        }
-
+        this.checkRequiredIDIMCredentials();
         try {
             const client = await this.getSoapClient();
             // set xml schema parameters for the request
@@ -93,7 +90,8 @@ export class IdimWebserviceService {
                             );
                         }
 
-                        // this will be any error return by the web service, for example if we provided an non existing requestor id
+                        // this will be any error return by the web service
+                        // for example if we provided an non existing requestor id, or permission issue
                         if (
                             foundUser.searchInternalAccountResult.code ==
                             'Failed'
@@ -102,42 +100,53 @@ export class IdimWebserviceService {
                                 new HttpException(
                                     {
                                         status: HttpStatus.BAD_REQUEST,
-                                        ...foundUser.searchInternalAccountResult,
+                                        code: foundUser
+                                            .searchInternalAccountResult.code,
+                                        failureCode:
+                                            foundUser
+                                                .searchInternalAccountResult
+                                                .failureCode,
+                                        message:
+                                            foundUser
+                                                .searchInternalAccountResult
+                                                .message,
                                     },
                                     HttpStatus.BAD_REQUEST
                                 )
                             );
                         }
 
+                        // user not found case
+                        // searchInternalAccount method returns code Success with pagination.totalItems = 0
                         if (
                             foundUser.searchInternalAccountResult.pagination
-                                .totalItems > 0
+                                .totalItems == 0
                         ) {
-                            const response = new IDIRUserResponse();
-                            const userInfo =
-                                foundUser.searchInternalAccountResult
-                                    .accountList.BCeIDAccount[0];
-                            response.found = true;
-                            response.userId = userInfo.userId.value;
-                            response.guid = userInfo.guid.value;
-                            response.firstName =
-                                userInfo.individualIdentity.name.firstname.value;
-                            response.lastName =
-                                userInfo.individualIdentity.name.surname.value;
-                            response.email = userInfo.contact.email.value;
-                            resolve(response);
-                        } else {
                             const response = new IDIRUserResponse();
                             response.found = false;
                             response.userId = userId;
-                            resolve(response);
+                            return resolve(response);
                         }
+
+                        const response = new IDIRUserResponse();
+                        const userInfo =
+                            foundUser.searchInternalAccountResult.accountList
+                                .BCeIDAccount[0];
+                        response.found = true;
+                        response.userId = userInfo.userId.value;
+                        response.guid = userInfo.guid.value;
+                        response.firstName =
+                            userInfo.individualIdentity.name.firstname.value;
+                        response.lastName =
+                            userInfo.individualIdentity.name.surname.value;
+                        response.email = userInfo.contact.email.value;
+                        return resolve(response);
                     }
                 );
             });
         } catch (error) {
             return new HttpException(
-                { error: 'IDIM web service error: ' + error },
+                { error: 'Error happened when call verifyIdirUser: ' + error },
                 HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
@@ -148,15 +157,7 @@ export class IdimWebserviceService {
         requesterUserGuid: string,
         requesterAccountTypeCode: string
     ): Promise<HttpException | BCEIDUserResponse> {
-        if (!this.hasAllRequiredParams()) {
-            return new HttpException(
-                {
-                    error: 'Missing IDIM web service crednetials in the environment variables',
-                },
-                HttpStatus.INTERNAL_SERVER_ERROR
-            );
-        }
-
+        this.checkRequiredIDIMCredentials();
         try {
             const client = await this.getSoapClient();
             // set xml schema parameters for the request
@@ -190,20 +191,13 @@ export class IdimWebserviceService {
                             );
                         }
 
-                        if (
-                            foundUser.getAccountDetailResult.code == 'Failed' &&
-                            foundUser.getAccountDetailResult.failureCode ==
-                                'NoResults'
-                        ) {
-                            const response = new BCEIDUserResponse();
-                            response.found = false;
-                            response.userId = userId;
-                            return resolve(response);
-                        }
-
                         // this will be any error return by the web service
                         // for example if we provided an non existing requestor id, or permission issue
-                        if (foundUser.getAccountDetailResult.code == 'Failed') {
+                        if (
+                            foundUser.getAccountDetailResult.code == 'Failed' &&
+                            foundUser.getAccountDetailResult.failureCode !==
+                                'NoResults'
+                        ) {
                             return reject(
                                 new HttpException(
                                     {
@@ -220,6 +214,20 @@ export class IdimWebserviceService {
                                     HttpStatus.BAD_REQUEST
                                 )
                             );
+                        }
+
+                        // user not found case
+                        // getAccountDetail method returns code Failed with failureCode NoResults
+                        // which is different than the not found case of searchInternalAccount method that we used above for searching idir user
+                        if (
+                            foundUser.getAccountDetailResult.code == 'Failed' &&
+                            foundUser.getAccountDetailResult.failureCode ==
+                                'NoResults'
+                        ) {
+                            const response = new BCEIDUserResponse();
+                            response.found = false;
+                            response.userId = userId;
+                            return resolve(response);
                         }
 
                         const response = new BCEIDUserResponse();
@@ -242,7 +250,7 @@ export class IdimWebserviceService {
             });
         } catch (error) {
             return new HttpException(
-                { error: 'IDIM web service error: ' + error },
+                { error: 'Error happened when call verifyBceidUser: ' + error },
                 HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
