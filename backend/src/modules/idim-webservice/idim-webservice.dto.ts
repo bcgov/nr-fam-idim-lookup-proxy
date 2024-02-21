@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export enum RequesterAccountTypeCode {
     Internal = 'Internal',
+    Business = 'Business'
 }
 
 export class IDIRUserResponse {
@@ -12,7 +13,7 @@ export class IDIRUserResponse {
     userId: string;
 
     @ApiProperty()
-    displayName: string;
+    guid: string;
 
     @ApiProperty()
     firstName: string;
@@ -23,3 +24,31 @@ export class IDIRUserResponse {
     @ApiProperty()
     email: string;
 }
+
+export class BCEIDUserResponse {
+    @ApiProperty()
+    found: boolean;
+
+    @ApiProperty()
+    userId: string;
+
+    @ApiProperty()
+    guid: string;
+
+    @ApiProperty()
+    businessGuid: string;
+
+    @ApiProperty()
+    businessLegalName: string;
+
+    @ApiProperty()
+    firstName: string;
+
+    @ApiProperty()
+    lastName: string;
+
+    @ApiProperty()
+    email: string;
+}
+
+

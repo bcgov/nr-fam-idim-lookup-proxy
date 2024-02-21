@@ -11,6 +11,7 @@ import { AuthGuard } from '../auth/auth.guard';
 import { IdimWebserviceService } from './idim-webservice.service';
 import {
     IDIRUserResponse,
+    BCEIDUserResponse,
     RequesterAccountTypeCode,
 } from './idim-webservice.dto';
 
@@ -38,6 +39,25 @@ export class IdimWebserviceController {
         return this.idimWebserviceService.verifyIdirUser(
             userId,
             requesterUserId,
+            requesterAccountTypeCode
+        );
+    }
+
+    @Get('bceid')
+    @ApiResponse({ status: HttpStatus.OK, type: BCEIDUserResponse })
+    @ApiQuery({
+        name: 'requesterAccountTypeCode',
+        enum: RequesterAccountTypeCode,
+    })
+    async verifyBceidUser(
+        @Query('userId') userId: string,
+        @Query('requesterUserGuid') requesterUserGuid: string,
+        @Query('requesterAccountTypeCode')
+        requesterAccountTypeCode: string
+    ): Promise<HttpException | BCEIDUserResponse> {
+        return this.idimWebserviceService.verifyBceidUser(
+            userId,
+            requesterUserGuid,
             requesterAccountTypeCode
         );
     }
