@@ -28,13 +28,13 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.1.10",
     "dotenv": "^16.1.4",
+    "helmet": "^7.0.0",
+    "nest-winston": "^1.9.1",
     "rimraf": "^5.0.0",
     "rxjs": "^7.8.0",
     "soap": "^1.0.0",
     "swagger-ui-express": "^5.0.0",
-    "winston": "^3.8.2",
-    "nest-winston": "^1.9.1",
-    "helmet": "^7.0.0"
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@nestjs/schematics": "^10.0.0",
@@ -50,7 +50,7 @@
     "eslint-config-prettier": "^8.6.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-n": "^17.3.1",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-promise": "^6.1.1",
     "istanbul-badges-readme": "^1.8.4",
