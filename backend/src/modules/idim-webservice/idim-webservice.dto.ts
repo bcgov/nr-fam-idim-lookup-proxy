@@ -1,5 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+export enum SearchUserParameterType {
+    UserGuid = "userGuid",
+    UserId = "userId"
+  }
+
 export enum RequesterAccountTypeCode {
     Internal = 'Internal',
     Business = 'Business'
