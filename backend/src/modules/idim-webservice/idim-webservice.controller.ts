@@ -35,7 +35,7 @@ export class IdimWebserviceController {
         @Query('userId') userId: string,
         @Query('requesterUserId') requesterUserId: string,
         @Query('requesterAccountTypeCode')
-        requesterAccountTypeCode: string
+        requesterAccountTypeCode: RequesterAccountTypeCode
     ): Promise<HttpException | IDIRUserResponse> {
         return this.idimWebserviceService.verifyIdirUser(
             userId,
@@ -54,7 +54,7 @@ export class IdimWebserviceController {
         @Query('userId') userId: string,
         @Query('requesterUserGuid') requesterUserGuid: string,
         @Query('requesterAccountTypeCode')
-        requesterAccountTypeCode: string
+        requesterAccountTypeCode: RequesterAccountTypeCode
     ): Promise<HttpException | BCEIDUserResponse> {
         return this.idimWebserviceService.verifyBceidUser(
             userId,
@@ -71,11 +71,11 @@ export class IdimWebserviceController {
     })
     @ApiQuery({ name: 'searchUserBy', enum: SearchUserParameterType })
     async verifyBusinessBceidUser(
-        @Query('searchUserBy') searchUserBy: string,
+        @Query('searchUserBy') searchUserBy: SearchUserParameterType,
         @Query('searchValue') searchValue: string,
         @Query('requesterUserGuid') requesterUserGuid: string,
         @Query('requesterAccountTypeCode')
-        requesterAccountTypeCode: string
+        requesterAccountTypeCode: RequesterAccountTypeCode
     ): Promise<HttpException | BCEIDUserResponse> {
         return this.idimWebserviceService.verifyBusinessBceidUser(
             searchUserBy,
