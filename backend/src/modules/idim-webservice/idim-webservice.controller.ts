@@ -10,6 +10,7 @@ import { ApiResponse, ApiQuery, ApiTags, ApiSecurity } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
 import { IdimWebserviceService } from './idim-webservice.service';
 import {
+    SearchUserParameterType,
     IDIRUserResponse,
     BCEIDUserResponse,
     RequesterAccountTypeCode,
@@ -34,7 +35,7 @@ export class IdimWebserviceController {
         @Query('userId') userId: string,
         @Query('requesterUserId') requesterUserId: string,
         @Query('requesterAccountTypeCode')
-        requesterAccountTypeCode: string
+        requesterAccountTypeCode: RequesterAccountTypeCode
     ): Promise<HttpException | IDIRUserResponse> {
         return this.idimWebserviceService.verifyIdirUser(
             userId,
@@ -53,10 +54,32 @@ export class IdimWebserviceController {
         @Query('userId') userId: string,
         @Query('requesterUserGuid') requesterUserGuid: string,
         @Query('requesterAccountTypeCode')
-        requesterAccountTypeCode: string
+        requesterAccountTypeCode: RequesterAccountTypeCode
     ): Promise<HttpException | BCEIDUserResponse> {
         return this.idimWebserviceService.verifyBceidUser(
             userId,
+            requesterUserGuid,
+            requesterAccountTypeCode
+        );
+    }
+
+    @Get('businessBceid')
+    @ApiResponse({ status: HttpStatus.OK, type: BCEIDUserResponse })
+    @ApiQuery({
+        name: 'requesterAccountTypeCode',
+        enum: RequesterAccountTypeCode,
+    })
+    @ApiQuery({ name: 'searchUserBy', enum: SearchUserParameterType })
+    async verifyBusinessBceidUser(
+        @Query('searchUserBy') searchUserBy: SearchUserParameterType,
+        @Query('searchValue') searchValue: string,
+        @Query('requesterUserGuid') requesterUserGuid: string,
+        @Query('requesterAccountTypeCode')
+        requesterAccountTypeCode: RequesterAccountTypeCode
+    ): Promise<HttpException | BCEIDUserResponse> {
+        return this.idimWebserviceService.verifyBusinessBceidUser(
+            searchUserBy,
+            searchValue,
             requesterUserGuid,
             requesterAccountTypeCode
         );
