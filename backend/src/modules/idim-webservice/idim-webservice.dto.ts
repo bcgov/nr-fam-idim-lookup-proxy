@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export enum SearchUserParameterType {
-    UserGuid = "userGuid",
-    UserId = "userId"
-  }
+    UserGuid = 'userGuid',
+    UserId = 'userId',
+}
 
 export enum RequesterAccountTypeCode {
     Internal = 'Internal',
-    Business = 'Business'
+    Business = 'Business',
 }
 
 export class IDIRUserResponse {
@@ -55,5 +55,3 @@ export class BCEIDUserResponse {
     @ApiProperty()
     email: string;
 }
-
-
