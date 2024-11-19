@@ -59,8 +59,8 @@ jobs:
           oc_token: ${{ secrets.OC_TOKEN }}
           overwrite: ${{ matrix.overwrite }}
           parameters:
-            -p ZONE=test -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:test
-            -p NAME=${{ github.event.repository.name }} ${{ matrix.parameters }}
+            -p ZONE=test -p TAG=test
+            ${{ matrix.parameters }}
             -p IDIM_WEB_SERVICE_URL=${{ vars.IDIM_WEB_SERVICE_URL }}
             -p IDIM_WEB_SERVICE_ID=${{ secrets.IDIM_WEB_SERVICE_ID }}
             -p IDIM_WEB_SERVICE_USERNAME=${{ secrets.IDIM_WEB_SERVICE_USERNAME }}
@@ -90,8 +90,8 @@ jobs:
           oc_token: ${{ secrets.OC_TOKEN }}
           overwrite: ${{ matrix.overwrite }}
           parameters:
-            -p ZONE=prod -p PROMOTE=${{ github.repository }}/${{ matrix.name }}:test
-            -p NAME=${{ github.event.repository.name }} ${{ matrix.parameters }}
+            -p ZONE=prod -p TAG=test
+            ${{ matrix.parameters }}
             -p IDIM_WEB_SERVICE_URL=${{ vars.IDIM_WEB_SERVICE_URL }}
             -p IDIM_WEB_SERVICE_ID=${{ secrets.IDIM_WEB_SERVICE_ID }}
             -p IDIM_WEB_SERVICE_USERNAME=${{ secrets.IDIM_WEB_SERVICE_USERNAME }}
