@@ -16,10 +16,17 @@ jobs:
     name: Cleanup OpenShift
     runs-on: ubuntu-22.04
     steps:
+      - name: Install CLI tools from OpenShift Mirror
+        uses: redhat-actions/openshift-tools-installer@v1
+        with:
+          oc: "4.14.37"
+
       - name: Remove OpenShift artifacts
         run: |
-          oc login --token=${{ secrets.OC_TOKEN }} --server=${{ vars.OC_SERVER }}
-          oc project ${{ vars.OC_NAMESPACE }}
+          # OC Login
+          OC_TEMP_TOKEN=$(curl -k -X POST https://api.silver.devops.gov.bc.ca:6443/api/v1/namespaces/${{ vars.OC_NAMESPACE }}/serviceaccounts/pipeline/token --header "Authorization: Bearer ${{ secrets.OC_TOKEN }}" -d '{"spec": {"expirationSeconds": 600}}' -H 'Content-Type: application/json; charset=utf-8' | jq -r '.status.token' )
+          oc login --token=${OC_TEMP_TOKEN} --server=https://api.silver.devops.gov.bc.ca:6443
+          oc project ${{ vars.OC_NAMESPACE }} # Safeguard!
 
           # Remove old build runs, build pods and deployment pods
           oc delete all,pvc,secret -l app=${{ github.event.repository.name }}-${{ github.event.number }}
