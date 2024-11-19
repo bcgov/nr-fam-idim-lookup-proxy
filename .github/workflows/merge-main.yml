@@ -16,7 +16,7 @@ concurrency:
 jobs:
   codeql:
     name: Semantic Code Analysis
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       actions: read
       contents: read
@@ -42,7 +42,7 @@ jobs:
     needs:
       - codeql
     environment: test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         name: [backend]
@@ -73,7 +73,7 @@ jobs:
     needs:
       - deploys-test
     environment: prod
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         name: [backend]
@@ -103,7 +103,7 @@ jobs:
     name: Promote images to PROD
     needs:
       - deploys-prod
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions:
       packages: write
     strategy:
