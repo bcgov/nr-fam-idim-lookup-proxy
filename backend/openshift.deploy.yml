@@ -99,7 +99,7 @@ objects:
     apiVersion: apps/v1
     metadata:
       labels:
-        metadata:
+        matchLabels:
           app: ${NAME}-${ZONE}
       name: ${NAME}-${ZONE}-${COMPONENT}
     spec:
