@@ -90,7 +90,7 @@ jobs:
           oc_token: ${{ secrets.OC_TOKEN }}
           overwrite: ${{ matrix.overwrite }}
           parameters:
-            -p ZONE=prod -p TAG=test
+            -p ZONE=prod -p TAG=prod
             ${{ matrix.parameters }}
             -p IDIM_WEB_SERVICE_URL=${{ vars.IDIM_WEB_SERVICE_URL }}
             -p IDIM_WEB_SERVICE_ID=${{ secrets.IDIM_WEB_SERVICE_ID }}
