@@ -2,8 +2,7 @@ name: Pull Request Closed
 
 on:
   pull_request:
-    types:
-      - closed
+    types: [closed]
 
 concurrency:
   # PR open and close use the same group, allowing only one at a time
@@ -11,40 +10,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Clean up OpenShift when PR closed, no conditions
-  cleanup-openshift:
-    name: Cleanup OpenShift
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Install CLI tools from OpenShift Mirror
-        uses: redhat-actions/openshift-tools-installer@v1
-        with:
-          oc: "4.14.37"
-
-      - name: Remove OpenShift artifacts
-        run: |
-          # OC Login
-          OC_TEMP_TOKEN=$(curl -k -X POST https://api.silver.devops.gov.bc.ca:6443/api/v1/namespaces/${{ vars.OC_NAMESPACE }}/serviceaccounts/pipeline/token --header "Authorization: Bearer ${{ secrets.OC_TOKEN }}" -d '{"spec": {"expirationSeconds": 600}}' -H 'Content-Type: application/json; charset=utf-8' | jq -r '.status.token' )
-          oc login --token=${OC_TEMP_TOKEN} --server=https://api.silver.devops.gov.bc.ca:6443
-          oc project ${{ vars.OC_NAMESPACE }} # Safeguard!
-
-          # Remove old build runs, build pods and deployment pods
-          oc delete all,pvc,secret -l app=${{ github.event.repository.name }}-${{ github.event.number }}
-
-  # If merged into main, then handle any image promotions
-  image-promotions:
-    name: Image Promotions
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
-    runs-on: ubuntu-24.04
-    permissions:
-      packages: write
-    strategy:
-      matrix:
-        package: [backend]
-    steps:
-      - uses: shrink/actions-docker-registry-tag@v4
-        with:
-          registry: ghcr.io
-          repository: ${{ github.repository }}/${{ matrix.package }}
-          target: ${{ github.event.number }}
-          tags: test
+  cleanup:
+    name: Cleanup and Images
+    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-close.yml@v0.8.3
+    secrets:
+      oc_namespace: ${{ vars.OC_NAMESPACE }}
+      oc_token: ${{ secrets.OC_TOKEN }}
+    with:
+      cleanup: label
+      packages: backend

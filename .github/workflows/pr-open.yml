@@ -9,31 +9,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pr-greeting:
-    name: PR Greeting
-    if: github.event.action == 'opened' || github.event.action == 'reopened'
-    env:
-      DOMAIN: apps.silver.devops.gov.bc.ca
-      PREFIX: ${{ github.event.repository.name }}-${{ github.event.number }}
-    runs-on: ubuntu-24.04
-    permissions:
-      pull-requests: write
-    steps:
-      - name: PR Greeting
-        uses: bcgov-nr/action-pr-description-add@v1.1.2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          add_markdown: |
-            ---
-
-            Thanks for the PR!
-
-            Any successful deployments (not always required) will be available below.
-            [Backend](https://${{ env.PREFIX }}-backend.${{ env.DOMAIN }}/api) available
-
-            Once merged, code will be promoted and handed off to following workflow run.
-            [Main Merge Workflow](https://github.com/${{ github.repository }}/actions/workflows/merge-main.yml)
-
   builds:
     name: Builds
     runs-on: ubuntu-24.04
@@ -53,7 +28,7 @@ jobs:
         with:
           package: ${{ matrix.package }}
           tag: ${{ github.event.number }}
-          tag_fallback: test
+          tag_fallback: latest
           token: ${{ secrets.GITHUB_TOKEN }}
           triggers: ${{ matrix.triggers }}
           build_file: ${{ matrix.build_file }}
@@ -62,8 +37,7 @@ jobs:
 
   deploys:
     name: Deploys
-    needs:
-      - builds
+    needs: builds
     runs-on: ubuntu-24.04
     strategy:
       matrix:
