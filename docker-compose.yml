@@ -15,6 +15,14 @@ services:
     volumes: ["./backend:/app:z", "/app/node_modules"]
     <<: *common
 
+  # Local test - docker compose up dev
+  test:
+    profiles: ["test"]
+    entrypoint: ["sh", "-c", "npm i && npm run test"]
+    image: node:18
+    volumes: ["./backend:/app:z", "/app/node_modules"]
+    <<: *common
+
   # Container/deploy - docker compose up deploy
   deploy:
     profiles: ["deploy"]
