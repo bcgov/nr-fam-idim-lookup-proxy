@@ -1,9 +1,8 @@
-name: Merge to Main
+name: Merge
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths-ignore:
       - ".github/ISSUE_TEMPLATE/*"
       - "**.md"
@@ -37,10 +36,19 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
 
+  init:
+    name: Initialize
+    outputs:
+      pr: ${{ steps.pr.outputs.pr }}
+    runs-on: ubuntu-latest
+    steps:
+        # Get PR number for squash merges to main
+      - id: pr
+        uses: bcgov-nr/action-get-pr@v0.0.1
+
   deploys-test:
     name: TEST Deployments
-    needs:
-      - codeql
+    needs: [init]
     environment: test
     runs-on: ubuntu-24.04
     strategy:
@@ -59,7 +67,7 @@ jobs:
           oc_token: ${{ secrets.OC_TOKEN }}
           overwrite: ${{ matrix.overwrite }}
           parameters:
-            -p ZONE=test -p TAG=test
+            -p ZONE=test -p TAG=${{ needs.init.outputs.pr }}
             ${{ matrix.parameters }}
             -p IDIM_WEB_SERVICE_URL=${{ vars.IDIM_WEB_SERVICE_URL }}
             -p IDIM_WEB_SERVICE_ID=${{ secrets.IDIM_WEB_SERVICE_ID }}
@@ -70,8 +78,7 @@ jobs:
 
   deploys-prod:
     name: PROD Deployments
-    needs:
-      - deploys-test
+    needs: [init, deploys-test]
     environment: prod
     runs-on: ubuntu-24.04
     strategy:
@@ -90,7 +97,7 @@ jobs:
           oc_token: ${{ secrets.OC_TOKEN }}
           overwrite: ${{ matrix.overwrite }}
           parameters:
-            -p ZONE=prod -p TAG=prod
+            -p ZONE=prod -p TAG=${{ needs.init.outputs.pr }}
             ${{ matrix.parameters }}
             -p IDIM_WEB_SERVICE_URL=${{ vars.IDIM_WEB_SERVICE_URL }}
             -p IDIM_WEB_SERVICE_ID=${{ secrets.IDIM_WEB_SERVICE_ID }}
@@ -101,8 +108,7 @@ jobs:
 
   image-promotions:
     name: Promote images to PROD
-    needs:
-      - deploys-prod
+    needs: [init, deploys-prod]
     runs-on: ubuntu-24.04
     permissions:
       packages: write
@@ -114,5 +120,5 @@ jobs:
         with:
           registry: ghcr.io
           repository: ${{ github.repository }}/${{ matrix.component }}
-          target: test
+          target: ${{ needs.init.outputs.pr }}
           tags: prod
