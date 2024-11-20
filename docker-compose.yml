@@ -1,14 +1,23 @@
----
+# Reusable config
+x-common: &common
+  container_name: backend
+  ports: ["3000:3000"]
+  healthcheck:
+    test: [ "CMD", "curl", "-f", "http://localhost:3000/api" ]
+  working_dir: "/app"
+
 services:
-  backend:
-    container_name: backend
-    entrypoint:
-      - "sh"
-      - "-c"
-      - "npm i && npm run start"
+  # Local dev - docker compose up dev
+  dev:
+    profiles: ["dev"]
+    entrypoint: ["sh", "-c", "npm i && npm run start"]
     image: node:18
-    ports: ["3000:3000"]
     volumes: ["./backend:/app:z", "/app/node_modules"]
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000/api" ]
-    working_dir: "/app"
+    <<: *common
+
+  # Container/deploy - docker compose up deploy
+  deploy:
+    profiles: ["deploy"]
+    build:
+      context: backend
+    <<: *common
