@@ -9,7 +9,7 @@ RUN npm run build
 
 # Deployment container
 FROM gcr.io/distroless/nodejs:18
-ENV NODE_ENV production
+ENV NODE_ENV=production
 
 # Copy over app
 WORKDIR /app
