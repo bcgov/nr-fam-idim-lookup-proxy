@@ -51,7 +51,6 @@ jobs:
             -p IDIM_WEB_SERVICE_USERNAME=${{ secrets.IDIM_WEB_SERVICE_USERNAME }}
             -p IDIM_WEB_SERVICE_PASSWORD=${{ secrets.IDIM_WEB_SERVICE_PASSWORD }}
             -p API_KEY=${{ secrets.API_KEY }}
-          penetration_test: true
 
   deploys-prod:
     name: PROD Deployments
@@ -81,7 +80,6 @@ jobs:
             -p IDIM_WEB_SERVICE_USERNAME=${{ secrets.IDIM_WEB_SERVICE_USERNAME }}
             -p IDIM_WEB_SERVICE_PASSWORD=${{ secrets.IDIM_WEB_SERVICE_PASSWORD }}
             -p API_KEY=${{ secrets.API_KEY }}
-          penetration_test: false
 
   image-promotions:
     name: Promote images to PROD
