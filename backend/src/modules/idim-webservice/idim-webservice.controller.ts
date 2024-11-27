@@ -1,20 +1,20 @@
 import {
     Controller,
     Get,
-    Query,
     HttpException,
     HttpStatus,
+    Query,
     UseGuards,
 } from '@nestjs/common';
-import { ApiResponse, ApiQuery, ApiTags, ApiSecurity } from '@nestjs/swagger';
+import { ApiQuery, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
-import { IdimWebserviceService } from './idim-webservice.service';
 import {
-    SearchUserParameterType,
-    IDIRUserResponse,
     BCEIDUserResponse,
+    IDIRUserResponse,
     RequesterAccountTypeCode,
+    SearchUserParameterType,
 } from './idim-webservice.dto';
+import { IdimWebserviceService } from './idim-webservice.service';
 
 @ApiTags('IDIM Webservice')
 @UseGuards(AuthGuard)
@@ -43,6 +43,20 @@ export class IdimWebserviceController {
             requesterAccountTypeCode
         );
     }
+
+    @Get('idir-account-detail')
+    @ApiResponse({ status: HttpStatus.OK, type: IDIRUserResponse })
+    async verifyIdirUserByIdimAccountDetail(
+        @Query('userId') userId: string,
+        @Query('requesterUserGuid') requesterUserGuid: string,
+    ): Promise<HttpException | IDIRUserResponse> {
+        return this.idimWebserviceService.verifyIdirUserByIdimAccountDetail(
+            userId,
+            requesterUserGuid
+        );
+    }
+
+    // -- Below are for BCeID IDIM call
 
     @Get('bceid')
     @ApiResponse({ status: HttpStatus.OK, type: BCEIDUserResponse })
