@@ -59,15 +59,15 @@ describe('IdimWebserviceController', () => {
             ).rejects.toThrowError('Requester account cannot be found.');
         });
 
-        it.skip('find without requester type code', async () => {
-            await expect(
-                controller.verifyIdirUser(
-                    TEST_IDIR_USERID,
-                    TEST_IDIR_USERID_NON_EXIST,
-                    TEST_REQUESTER_TYPE_CODE_NOT_SUPPORT
-                )
-            ).rejects.toThrowError('Http Exception');
-        });
+        // it.skip('find without requester type code', async () => {
+        //     await expect(
+        //         controller.verifyIdirUser(
+        //             TEST_IDIR_USERID,
+        //             TEST_IDIR_USERID_NON_EXIST,
+        //             TEST_REQUESTER_TYPE_CODE_NOT_SUPPORT
+        //         )
+        //     ).rejects.toThrowError('Http Exception');
+        // });
     });
 
     describe.skip('verifyBceidUser', () => {
@@ -98,15 +98,15 @@ describe('IdimWebserviceController', () => {
             ).rejects.toThrowError('Requester account cannot be found.');
         });
 
-        it.skip('find without requester type code', async () => {
-            await expect(
-                controller.verifyBceidUser(
-                    TEST_BUSINESS_BCEID_USERID,
-                    TEST_REQUESTER_IDIR_GUID,
-                    TEST_REQUESTER_TYPE_CODE_NOT_SUPPORT
-                )
-            ).rejects.toThrowError('Http Exception');
-        });
+        // it.skip('find without requester type code', async () => {
+        //     await expect(
+        //         controller.verifyBceidUser(
+        //             TEST_BUSINESS_BCEID_USERID,
+        //             TEST_REQUESTER_IDIR_GUID,
+        //             TEST_REQUESTER_TYPE_CODE_NOT_SUPPORT
+        //         )
+        //     ).rejects.toThrowError('Http Exception');
+        // });
 
         it('IDIR find existing business BCEID user', async () => {
             const result = await controller.verifyBceidUser(
