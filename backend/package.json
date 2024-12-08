@@ -26,7 +26,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.1.10",
     "dotenv": "^16.1.4",
-    "helmet": "^7.0.0",
+    "helmet": "^8.0.0",
     "nest-winston": "^1.9.1",
     "rxjs": "^7.8.0",
     "soap": "^1.0.0",
