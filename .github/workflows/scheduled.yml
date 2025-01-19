@@ -16,7 +16,7 @@ jobs:
       # https://tecadmin.net/getting-yesterdays-date-in-bash/
       DATE: "4 days ago"
       TYPE: "deployments"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: redhat-actions/openshift-tools-installer@v1
@@ -34,7 +34,7 @@ jobs:
 
   # Run sequentially to reduce chances of rate limiting
   zap_scan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: ZAP Scans
     env:
       DOMAIN: apps.silver.devops.gov.bc.ca
