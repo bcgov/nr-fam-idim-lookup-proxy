@@ -23,17 +23,16 @@ jobs:
             build_file: ./backend/Dockerfile
             build_context: ./backend
     steps:
-      - uses: actions/checkout@v4
-      - uses: bcgov/action-builder-ghcr@v2.3.0
+      - uses: actions/checkout@v5
+      - uses: bcgov/action-builder-ghcr@4.1.1
         with:
           package: ${{ matrix.package }}
-          tag: ${{ github.event.number }}
+          tags: ${{ github.event.number }}
           tag_fallback: latest
           token: ${{ secrets.GITHUB_TOKEN }}
           triggers: ${{ matrix.triggers }}
           build_file: ${{ matrix.build_file }}
           build_context: ${{ matrix.build_context }}
-
 
   deploys:
     name: Deploys
@@ -46,11 +45,10 @@ jobs:
           - name: backend
             file: backend/openshift.deploy.yml
             overwrite: true
-            parameters:
-              -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
+            parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
             triggers: ('backend/')
     steps:
-      - uses: bcgov/action-deployer-openshift@v3.0.1
+      - uses: bcgov/action-deployer-openshift@v4.0.0
         with:
           file: ${{ matrix.file }}
           oc_namespace: ${{ vars.OC_NAMESPACE }}
