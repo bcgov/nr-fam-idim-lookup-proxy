@@ -8,6 +8,10 @@ on:
       - "**.md"
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: read
+
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
