@@ -95,7 +95,7 @@ describe('IdimWebserviceController', () => {
                     TEST_REQUESTER_IDIR_GUIDD_NON_EXIST,
                     RequesterAccountTypeCode.Internal
                 )
-            ).rejects.toThrowError('Requester account cannot be found.');
+            ).rejects.toThrow('Requester account cannot be found.');
         });
 
         // it.skip('find without requester type code', async () => {
