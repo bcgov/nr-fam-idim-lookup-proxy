@@ -51,7 +51,7 @@ jobs:
             ${{ matrix.parameters }}
             -p IDIM_WEB_SERVICE_URL=${{ vars.IDIM_WEB_SERVICE_URL }}
             -p IDIM_WEB_SERVICE_ID=${{ secrets.IDIM_WEB_SERVICE_ID }}
-            -p IDIM_WEB_SERVICE_USERNAME='${{ secrets.IDIM_WEB_SERVICE_USERNAME }}'
+            -p IDIM_WEB_SERVICE_USERNAME=${{ secrets.IDIM_WEB_SERVICE_USERNAME }}
             -p IDIM_WEB_SERVICE_PASSWORD='${{ secrets.IDIM_WEB_SERVICE_PASSWORD }}'
             -p API_KEY=${{ secrets.API_KEY }}
 
