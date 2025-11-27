@@ -10,7 +10,7 @@
 # Local Setup
 
 -   Copy the content in the `local-dev.env` file and create a `.env` file. Update the value of the enviornment secrets (The secrets value can be found in our Openshift namespace e4bc30).
--   Install the packages `npm install`
+-   Install the packages `npm install  --ignore-scripts`
 -   Run the application `npm run start`
 
 # Acknowledgements
