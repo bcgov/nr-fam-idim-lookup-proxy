@@ -10,7 +10,7 @@ services:
   # Local dev - docker compose up dev
   dev:
     profiles: ["dev"]
-    entrypoint: ["sh", "-c", "npm i && npm run start"]
+    entrypoint: ["sh", "-c", "npm i --ignore-scripts && npm run start"]
     image: node:18
     volumes: ["./backend:/app:z", "/app/node_modules"]
     <<: *common
@@ -18,7 +18,7 @@ services:
   # Local test - docker compose up dev
   test:
     profiles: ["test"]
-    entrypoint: ["sh", "-c", "npm i && npm run test"]
+    entrypoint: ["sh", "-c", "npm i --ignore-scripts && npm run test"]
     image: node:18
     volumes: ["./backend:/app:z", "/app/node_modules"]
     <<: *common
