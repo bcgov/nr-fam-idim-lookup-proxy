@@ -60,6 +60,52 @@ export class IdimWebserviceService {
     }
 
     /**
+     * This method will handle both transport error and business error of the SOAP call, 
+     * and convert them to proper HttpException that can be returned.
+     * 
+     * Note on 'ignoredFailureCodes': IDIM webserivce has strange failureCodes on 'NoResults' case for different APIs. On some endpoints 
+     * where 'NoResults' is returned by the IDIM SOAP web service is not considered a true error but indicates no results retrieved from the request.
+     * When this is the case, use `this.handleSoapOperationError(error, payload, ['NoResults']);`
+     */
+    private handleSoapOperationError(
+        error: unknown,
+        payload?: {
+            code?: string;
+            failureCode?: string;
+            message?: string;
+        },
+        ignoredFailureCodes: string[] = [],
+    ): HttpException | undefined {
+        // Webservice call error
+        if (error) {
+            return new HttpException(
+                { error: 'IDIM web service call error: ' + error },
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+
+        // business error
+        if (
+            payload?.code === SoapSearchResultCode.Failed &&
+            !ignoredFailureCodes.includes(payload.failureCode ?? '')
+        ) {
+            // this will be any error return by the web service
+            // for example if we provided an non existing requestor id, or permission issue
+            return new HttpException(
+                {
+                    status: HttpStatus.BAD_REQUEST,
+                    code: payload.code,
+                    failureCode: payload.failureCode,
+                    message: payload.message,
+                },
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+
+        return undefined;
+    }
+
+    /**
      * Scenario: IDIR requester looks up IDIR user.
      * @param {string} userId - Target IDIR user id (username)
      * @param {string} requesterUserGuid  - User GUID from the requester.
@@ -210,44 +256,17 @@ export class IdimWebserviceService {
             },
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let client: any;
-        try {
-            client = await this.getSoapClient();
-        } catch (error) {
-            throw new HttpException(
-                { error: 'Failed to initialize IDIM SOAP client: ' + error },
-                HttpStatus.INTERNAL_SERVER_ERROR,
-            );
-        }
+        const client = await this.getSoapClient();
 
         return new Promise<SearchIdirUsersResponseDto>((resolve, reject) => {
             client.BCeIDService.BCeIDServiceSoap.searchInternalAccount(
                 requestPayload,
                 (error: unknown, result: SoapSearchResultEnvelope) => {
-                    if (error) {
-                        return reject(
-                            new HttpException(
-                                { error: 'IDIM web service call error: ' + error },
-                                HttpStatus.INTERNAL_SERVER_ERROR,
-                            ),
-                        );
-                    }
+                    const payload = result?.searchInternalAccountResult;
 
-                    const payload = result.searchInternalAccountResult;
-
-                    if (payload.code === SoapSearchResultCode.Failed) {
-                        return reject(
-                            new HttpException(
-                                {
-                                    status: HttpStatus.BAD_REQUEST,
-                                    code: payload.code,
-                                    failureCode: payload.failureCode,
-                                    message: payload.message,
-                                },
-                                HttpStatus.BAD_REQUEST,
-                            ),
-                        );
+                    const operationError = this.handleSoapOperationError(error, payload);
+                    if (operationError) {
+                        return reject(operationError);
                     }
 
                     return resolve(mapSoapResultToIdirUsersSearchResponse(payload, pageSize, pageIndex));
