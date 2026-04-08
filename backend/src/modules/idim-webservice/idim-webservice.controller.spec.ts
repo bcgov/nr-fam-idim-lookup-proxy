@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import 'dotenv/config';
 import { IdimWebserviceController } from './idim-webservice.controller';
-import { BCEIDUserResponse, RequesterAccountTypeCode } from './idim-webservice.dto';
+import { BCEIDUserResponse } from './idim-webservice.dto';
+import { RequesterAccountTypeCode } from './constants';
 import { IdimWebserviceService } from './idim-webservice.service';
 
 describe('IdimWebserviceController', () => {

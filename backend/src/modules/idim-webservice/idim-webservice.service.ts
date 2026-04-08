@@ -2,9 +2,24 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
     BCEIDUserResponse,
     IDIRUserResponse,
-    RequesterAccountTypeCode,
-    SearchUserParameterType,
+    SearchIdirUsersBodyDto,
+    SearchIdirUsersQueryDto,
+    SearchIdirUsersResponseDto,
+    SearchIdirUserResponseItemDto,
 } from './idim-webservice.dto';
+import {
+    RequesterAccountTypeCode,
+    SearchMatchMode,
+    SearchUserParameterType,
+    SoapSearchResultCode,
+    SoapSortDirection,
+    SoapSortProperty,
+} from './constants';
+import {
+    SoapSearchRequestPayload,
+    SoapSearchResultEnvelope,
+    SoapInternalAccountSummary,
+} from './types/idim-soap.types';
 const soap = require('soap');
 
 @Injectable()
@@ -147,6 +162,133 @@ export class IdimWebserviceService {
                 HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
+    }
+
+    // -- Below is the new IDIR search endpoint
+    async searchIdirUsers(
+        body: SearchIdirUsersBodyDto,
+        query: SearchIdirUsersQueryDto,
+    ): Promise<SearchIdirUsersResponseDto> {
+        this.checkRequiredIDIMCredentials();
+
+        const pageSize = query.pageSize ?? 10;
+        const pageIndex = query.pageIndex ?? 1;
+
+        const accountMatch: SoapSearchRequestPayload['internalAccountSearchRequest']['accountMatch'] = {};
+        if (query.firstName !== undefined) {
+            accountMatch.firstName = {
+                value: query.firstName,
+                matchPropertyUsing: query.firstNameMatchMode ?? SearchMatchMode.Contains,
+            };
+        }
+        if (query.lastName !== undefined) {
+            accountMatch.lastName = {
+                value: query.lastName,
+                matchPropertyUsing: query.lastNameMatchMode ?? SearchMatchMode.Contains,
+            };
+        }
+        if (query.userId !== undefined) {
+            accountMatch.userId = {
+                value: query.userId,
+                matchPropertyUsing: query.userIdMatchMode ?? SearchMatchMode.Contains,
+            };
+        }
+
+        const requestPayload: SoapSearchRequestPayload = {
+            internalAccountSearchRequest: {
+                onlineServiceId: this.idimWebServiceID!,
+                requesterAccountTypeCode: RequesterAccountTypeCode.Internal,
+                requesterUserGuid: body.requesterUserGuid,
+                pagination: {
+                    pageSizeMaximum: String(pageSize),
+                    pageIndex: String(pageIndex),
+                },
+                sort: {
+                    direction: SoapSortDirection.Ascending,
+                    onProperty: SoapSortProperty.UserId,
+                },
+                accountMatch,
+            },
+        };
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let client: any;
+        try {
+            client = await this.getSoapClient();
+        } catch (error) {
+            throw new HttpException(
+                { error: 'Failed to initialize IDIM SOAP client: ' + error },
+                HttpStatus.INTERNAL_SERVER_ERROR,
+            );
+        }
+
+        return new Promise<SearchIdirUsersResponseDto>((resolve, reject) => {
+            client.BCeIDService.BCeIDServiceSoap.searchInternalAccount(
+                requestPayload,
+                (error: unknown, result: SoapSearchResultEnvelope) => {
+                    if (error) {
+                        return reject(
+                            new HttpException(
+                                { error: 'IDIM web service call error: ' + error },
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                            ),
+                        );
+                    }
+
+                    const payload = result.searchInternalAccountResult;
+
+                    if (payload.code === SoapSearchResultCode.Failed) {
+                        return reject(
+                            new HttpException(
+                                {
+                                    status: HttpStatus.BAD_REQUEST,
+                                    code: payload.code,
+                                    failureCode: payload.failureCode,
+                                    message: payload.message,
+                                },
+                                HttpStatus.BAD_REQUEST,
+                            ),
+                        );
+                    }
+
+                    const pagination = payload.pagination;
+                    const totalItems = Number(pagination.totalItems);
+                    const responsedPageSize = Number(pagination.requestedPageSize);
+                    const responsedPageIndex = Number(pagination.requestedPageIndex);
+
+                    // Eventhough IDIR user is an internal account, the SOAP (API - developer guide) BCeIDAccount field is the return in the response, which is a bit confusing.
+                    const rawAccounts = payload.accountList?.BCeIDAccount;
+                    // Here it handles the case when there is only one matched account from SOAP response, then rawAccounts will be an object instead of an array, 
+                    // we need to convert it to array to make the following code understandable.
+                    let accounts: SoapInternalAccountSummary[];
+                    if (!rawAccounts) {
+                        accounts = [];
+                    } else if (Array.isArray(rawAccounts)) {
+                        accounts = rawAccounts;
+                    } else {
+                        accounts = [rawAccounts];
+                    }
+
+                    const items: SearchIdirUserResponseItemDto[] = accounts.map((acct) => {
+                        // DTO mapping from SOAP response to our API response object
+                        const item = new SearchIdirUserResponseItemDto();
+                        item.userId = acct.userId.value;
+                        item.guid = acct.guid.value;
+                        item.firstName = acct.individualIdentity.name.firstname.value;
+                        item.lastName = acct.individualIdentity.name.surname.value;
+                        item.email = acct.contact.email.value;
+                        return item;
+                    });
+
+                    const response = new SearchIdirUsersResponseDto();
+                    response.totalItems = totalItems;
+                    response.pageSize = responsedPageSize || pageSize;
+                    response.pageIndex = responsedPageIndex || pageIndex;
+                    response.items = items;
+                    return resolve(response);
+                },
+            );
+        });
     }
 
     // -- Below are for BCeID IDIM call

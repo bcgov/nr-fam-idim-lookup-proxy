@@ -14,7 +14,7 @@
  */
 import {
   RequesterAccountTypeCode,
-  SoapMatchMode,
+  SearchMatchMode,
   SoapSearchResultCode,
   SoapSortDirection,
   SoapSortProperty,
@@ -28,7 +28,7 @@ export interface SoapWrappedValue<T> {
 }
 export interface SoapSearchMatchProperty {
   value: string;
-  matchPropertyUsing: SoapMatchMode;
+  matchPropertyUsing: SearchMatchMode;
 }
 
 export interface SoapSearchRequestPayload {

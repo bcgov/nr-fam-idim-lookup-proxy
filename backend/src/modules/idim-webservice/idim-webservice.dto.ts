@@ -1,5 +1,17 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+    IsAlphanumeric,
+    IsEnum,
+    IsInt,
+    IsOptional,
+    IsString,
+    Length,
+    MaxLength,
+    Min,
+} from 'class-validator';
+import { Transform } from 'class-transformer';
 import { SearchMatchMode } from './constants';
+import { AtLeastOneOf } from '../../common/validators/at-least-one-of.decorator';
 
 export class IDIRUserResponse {
     @ApiProperty()
@@ -53,45 +65,76 @@ export class SearchIdirUsersBodyDto {
         minLength: 32,
         maxLength: 32,
     })
+    @IsString()
+    @Length(32, 32)
+    @IsAlphanumeric()
     requesterUserGuid!: string;
 }
 
 export class SearchIdirUsersQueryDto {
     @ApiPropertyOptional({ description: 'IDIR first name search value.', maxLength: 50 })
+    @IsOptional()
+    @IsString()
+    @MaxLength(50)
     firstName?: string;
 
     @ApiPropertyOptional({ description: 'IDIR last name search value.', maxLength: 50 })
+    @IsOptional()
+    @IsString()
+    @MaxLength(50)
     lastName?: string;
 
     @ApiPropertyOptional({ description: 'IDIR user ID search value.', maxLength: 20 })
+    @IsOptional()
+    @IsString()
+    @MaxLength(20)
     userId?: string;
 
     @ApiPropertyOptional({
         description: 'Match behavior for firstName. Defaults to Contains when firstName is supplied.',
         enum: SearchMatchMode,
     })
+    @IsOptional()
+    @IsEnum(SearchMatchMode)
     firstNameMatchMode?: SearchMatchMode;
 
     @ApiPropertyOptional({
         description: 'Match behavior for lastName. Defaults to Contains when lastName is supplied.',
         enum: SearchMatchMode,
     })
+    @IsOptional()
+    @IsEnum(SearchMatchMode)
     lastNameMatchMode?: SearchMatchMode;
 
     @ApiPropertyOptional({
         description: 'Match behavior for userId. Defaults to Contains when userId is supplied.',
         enum: SearchMatchMode,
     })
+    @IsOptional()
+    @IsEnum(SearchMatchMode)
     userIdMatchMode?: SearchMatchMode;
 
     @ApiPropertyOptional({ description: 'Requested page size. Defaults to 10.', default: 10 })
+    @IsOptional()
+    @Transform(({ value }) => (value !== undefined ? parseInt(value, 10) : value))
+    @IsInt()
+    @Min(1)
     pageSize?: number;
 
     @ApiPropertyOptional({ description: 'Requested page index. Defaults to 1.', default: 1 })
+    @IsOptional()
+    @Transform(({ value }) => (value !== undefined ? parseInt(value, 10) : value))
+    @IsInt()
+    @Min(1)
     pageIndex?: number;
+
+    @AtLeastOneOf(['firstName', 'lastName', 'userId'], {
+        message: 'At least one of firstName, lastName, or userId must be provided.',
+    })
+    readonly _atLeastOneSearchField?: never;
 }
 
-export class SearchIdirUserItemDto {
+export class SearchIdirUserResponseItemDto {
     @ApiProperty()
     userId!: string;
 
@@ -118,6 +161,6 @@ export class SearchIdirUsersResponseDto {
     @ApiProperty({ description: 'Requested page size reflected from SOAP response metadata.' })
     pageSize!: number;
 
-    @ApiProperty({ type: () => [SearchIdirUserItemDto] })
-    items!: SearchIdirUserItemDto[];
+    @ApiProperty({ type: () => [SearchIdirUserResponseItemDto] })
+    items!: SearchIdirUserResponseItemDto[];
 }

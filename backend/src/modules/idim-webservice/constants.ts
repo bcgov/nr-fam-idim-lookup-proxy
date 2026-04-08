@@ -1,20 +1,14 @@
 export enum SearchUserParameterType {
-    UserGuid = 'userGuid',
-    UserId = 'userId',
+  UserGuid = 'userGuid',
+  UserId = 'userId',
 }
 
 export enum RequesterAccountTypeCode {
-    Internal = 'Internal',
-    Business = 'Business',
+  Internal = 'Internal',
+  Business = 'Business',
 }
 
 export enum SearchMatchMode {
-    Exact = 'Exact',
-    Contains = 'Contains',
-    StartsWith = 'StartsWith',
-}
-
-export enum SoapMatchMode {
   Exact = 'Exact',
   Contains = 'Contains',
   StartsWith = 'StartsWith',

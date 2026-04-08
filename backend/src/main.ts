@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
@@ -21,6 +21,9 @@ async function bootstrap() {
     app.enableCors();
     app.set('trust proxy', 1);
     app.enableShutdownHooks();
+
+    // TODO: Enable global ValidationPipe once legacy endpoints are aligned with DTO-based validation.
+    // For now, ValidationPipe is applied only to the new search endpoint to avoid behavior changes.
 
     // Swagger
     const config = new DocumentBuilder()
