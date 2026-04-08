@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum SearchUserParameterType {
     UserGuid = 'userGuid',
@@ -8,6 +8,12 @@ export enum SearchUserParameterType {
 export enum RequesterAccountTypeCode {
     Internal = 'Internal',
     Business = 'Business',
+}
+
+export enum SearchMatchMode {
+    Exact = 'Exact',
+    Contains = 'Contains',
+    StartsWith = 'StartsWith',
 }
 
 export class IDIRUserResponse {
@@ -54,4 +60,79 @@ export class BCEIDUserResponse {
 
     @ApiProperty()
     email: string;
+}
+
+export class SearchIdirUsersBodyDto {
+    @ApiProperty({
+        description: 'Requester user GUID (32 alphanumeric characters).',
+        minLength: 32,
+        maxLength: 32,
+    })
+    requesterUserGuid!: string;
+}
+
+export class SearchIdirUsersQueryDto {
+    @ApiPropertyOptional({ description: 'IDIR first name search value.', maxLength: 50 })
+    firstName?: string;
+
+    @ApiPropertyOptional({ description: 'IDIR last name search value.', maxLength: 50 })
+    lastName?: string;
+
+    @ApiPropertyOptional({ description: 'IDIR user ID search value.', maxLength: 20 })
+    userId?: string;
+
+    @ApiPropertyOptional({
+        description: 'Match behavior for firstName. Defaults to Contains when firstName is supplied.',
+        enum: SearchMatchMode,
+    })
+    firstNameMatchMode?: SearchMatchMode;
+
+    @ApiPropertyOptional({
+        description: 'Match behavior for lastName. Defaults to Contains when lastName is supplied.',
+        enum: SearchMatchMode,
+    })
+    lastNameMatchMode?: SearchMatchMode;
+
+    @ApiPropertyOptional({
+        description: 'Match behavior for userId. Defaults to Contains when userId is supplied.',
+        enum: SearchMatchMode,
+    })
+    userIdMatchMode?: SearchMatchMode;
+
+    @ApiPropertyOptional({ description: 'Requested page size. Defaults to 10.', default: 10 })
+    pageSize?: number;
+
+    @ApiPropertyOptional({ description: 'Requested page index. Defaults to 1.', default: 1 })
+    pageIndex?: number;
+}
+
+export class SearchIdirUserItemDto {
+    @ApiProperty()
+    userId!: string;
+
+    @ApiProperty()
+    guid!: string;
+
+    @ApiProperty()
+    firstName!: string;
+
+    @ApiProperty()
+    lastName!: string;
+
+    @ApiProperty()
+    email!: string;
+}
+
+export class SearchIdirUsersResponseDto {
+    @ApiProperty({ description: 'Total number of matching users returned by SOAP result metadata.' })
+    totalItems!: number;
+
+    @ApiProperty({ description: 'Requested page index reflected from SOAP response metadata.' })
+    pageIndex!: number;
+
+    @ApiProperty({ description: 'Requested page size reflected from SOAP response metadata.' })
+    pageSize!: number;
+
+    @ApiProperty({ type: () => [SearchIdirUserItemDto] })
+    items!: SearchIdirUserItemDto[];
 }
