@@ -5,7 +5,6 @@ import {
     SearchIdirUsersBodyDto,
     SearchIdirUsersQueryDto,
     SearchIdirUsersResponseDto,
-    SearchIdirUserResponseItemDto,
 } from './idim-webservice.dto';
 import {
     RequesterAccountTypeCode,
@@ -18,8 +17,8 @@ import {
 import {
     SoapSearchRequestPayload,
     SoapSearchResultEnvelope,
-    SoapInternalAccountSummary,
 } from './types/idim-soap.types';
+import { mapSoapResultToIdirUsersSearchResponse } from './mappers/idim-user-search.mapper';
 const soap = require('soap');
 
 @Injectable()
@@ -164,7 +163,7 @@ export class IdimWebserviceService {
         }
     }
 
-    // -- Below is the new IDIR search endpoint
+    // -- Below is the IDIR search endpoint
     async searchIdirUsers(
         body: SearchIdirUsersBodyDto,
         query: SearchIdirUsersQueryDto,
@@ -251,41 +250,7 @@ export class IdimWebserviceService {
                         );
                     }
 
-                    const pagination = payload.pagination;
-                    const totalItems = Number(pagination.totalItems);
-                    const responsedPageSize = Number(pagination.requestedPageSize);
-                    const responsedPageIndex = Number(pagination.requestedPageIndex);
-
-                    // Eventhough IDIR user is an internal account, the SOAP (API - developer guide) BCeIDAccount field is the return in the response, which is a bit confusing.
-                    const rawAccounts = payload.accountList?.BCeIDAccount;
-                    // Here it handles the case when there is only one matched account from SOAP response, then rawAccounts will be an object instead of an array, 
-                    // we need to convert it to array to make the following code understandable.
-                    let accounts: SoapInternalAccountSummary[];
-                    if (!rawAccounts) {
-                        accounts = [];
-                    } else if (Array.isArray(rawAccounts)) {
-                        accounts = rawAccounts;
-                    } else {
-                        accounts = [rawAccounts];
-                    }
-
-                    const items: SearchIdirUserResponseItemDto[] = accounts.map((acct) => {
-                        // DTO mapping from SOAP response to our API response object
-                        const item = new SearchIdirUserResponseItemDto();
-                        item.userId = acct.userId.value;
-                        item.guid = acct.guid.value;
-                        item.firstName = acct.individualIdentity.name.firstname.value;
-                        item.lastName = acct.individualIdentity.name.surname.value;
-                        item.email = acct.contact.email.value;
-                        return item;
-                    });
-
-                    const response = new SearchIdirUsersResponseDto();
-                    response.totalItems = totalItems;
-                    response.pageSize = responsedPageSize || pageSize;
-                    response.pageIndex = responsedPageIndex || pageIndex;
-                    response.items = items;
-                    return resolve(response);
+                    return resolve(mapSoapResultToIdirUsersSearchResponse(payload, pageSize, pageIndex));
                 },
             );
         });
