@@ -1,65 +1,50 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-
-export enum SearchUserParameterType {
-    UserGuid = 'userGuid',
-    UserId = 'userId',
-}
-
-export enum RequesterAccountTypeCode {
-    Internal = 'Internal',
-    Business = 'Business',
-}
-
-export enum SearchMatchMode {
-    Exact = 'Exact',
-    Contains = 'Contains',
-    StartsWith = 'StartsWith',
-}
+import { SearchMatchMode } from './constants';
 
 export class IDIRUserResponse {
     @ApiProperty()
-    found: boolean;
+    found!: boolean;
 
     @ApiProperty()
-    userId: string;
+    userId!: string;
 
     @ApiProperty()
-    guid: string;
+    guid!: string;
 
     @ApiProperty()
-    firstName: string;
+    firstName!: string;
 
     @ApiProperty()
-    lastName: string;
+    lastName!: string;
 
     @ApiProperty()
-    email: string;
+    email!: string;
 }
 
 export class BCEIDUserResponse {
     @ApiProperty()
-    found: boolean;
+    found!: boolean;
 
     @ApiProperty()
-    userId: string;
+    userId!: string;
 
     @ApiProperty()
-    guid: string;
+    guid!: string;
 
     @ApiProperty()
-    businessGuid: string;
+    businessGuid!: string;
 
     @ApiProperty()
-    businessLegalName: string;
+    businessLegalName!: string;
 
     @ApiProperty()
-    firstName: string;
+    firstName!: string;
 
     @ApiProperty()
-    lastName: string;
+    lastName!: string;
 
     @ApiProperty()
-    email: string;
+    email!: string;
 }
 
 export class SearchIdirUsersBodyDto {

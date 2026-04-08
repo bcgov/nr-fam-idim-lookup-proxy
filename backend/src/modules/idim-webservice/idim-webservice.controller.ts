@@ -11,9 +11,11 @@ import { AuthGuard } from '../auth/auth.guard';
 import {
     BCEIDUserResponse,
     IDIRUserResponse,
+} from './idim-webservice.dto';
+import {
     RequesterAccountTypeCode,
     SearchUserParameterType,
-} from './idim-webservice.dto';
+} from './constants';
 import { IdimWebserviceService } from './idim-webservice.service';
 
 @ApiTags('IDIM Webservice')

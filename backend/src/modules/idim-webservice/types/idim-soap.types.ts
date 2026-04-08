@@ -1,27 +1,31 @@
+/**
+ * SOAP transport and mapping types for IDIM integration.
+ *
+ * These interfaces and types represent the raw SOAP request/response shapes and
+ * normalized internal mapping structures used by the service layer to interact with
+ * the IDIM SOAP API (e.g., searchInternalAccount).
+ *
+ * These types are NOT used as controller response DTOs. Instead, the service maps
+ * these internal types to API-facing DTOs (see idim-webservice.dto.ts) before returning
+ * data to REST clients.
+ *
+ * This separation ensures that SOAP-specific details and quirks are isolated from
+ * the REST API contract, and only relevant, stable fields are exposed externally.
+ */
+import {
+  RequesterAccountTypeCode,
+  SoapMatchMode,
+  SoapSearchResultCode,
+  SoapSortDirection,
+  SoapSortProperty,
+} from '../constants';
+
 export type SoapNumeric = number | string;
 
 // Wrapper for SOAP fields represented as nested <value> blocks.
 export interface SoapWrappedValue<T> {
   value: T;
 }
-
-// SOAP-side match mode passed in accountMatch criteria.
-export enum SoapMatchMode {
-  Exact = 'Exact',
-  Contains = 'Contains',
-  StartsWith = 'StartsWith',
-}
-
-export enum SoapSortDirection {
-  Ascending = 'Ascending',
-  Descending = 'Descending',
-}
-
-export enum SoapSearchResultCode {
-  Success = 'Success',
-  Failed = 'Failed',
-}
-
 export interface SoapSearchMatchProperty {
   value: string;
   matchPropertyUsing: SoapMatchMode;
@@ -30,7 +34,7 @@ export interface SoapSearchMatchProperty {
 export interface SoapSearchRequestPayload {
   internalAccountSearchRequest: {
     onlineServiceId: string;
-    requesterAccountTypeCode: 'Internal';
+    requesterAccountTypeCode: RequesterAccountTypeCode;
     requesterUserGuid: string;
     pagination: {
       pageSizeMaximum: string;
@@ -38,7 +42,7 @@ export interface SoapSearchRequestPayload {
     };
     sort: {
       direction: SoapSortDirection;
-      onProperty: 'UserId';
+      onProperty: SoapSortProperty;
     };
     accountMatch: {
       firstName?: SoapSearchMatchProperty;
