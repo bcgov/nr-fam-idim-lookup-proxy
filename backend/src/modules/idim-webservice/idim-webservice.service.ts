@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import {
     BCEIDUserResponse,
     IDIRUserResponse,
@@ -23,6 +23,8 @@ const soap = require('soap');
 
 @Injectable()
 export class IdimWebserviceService {
+    private readonly logger = new Logger(IdimWebserviceService.name);
+
     private idimWebServiceUrl = process.env.IDIM_WEB_SERVICE_URL;
     private idimWebServiceID = process.env.IDIM_WEB_SERVICE_ID;
     private idimWebServiceUsername = process.env.IDIM_WEB_SERVICE_USERNAME;
@@ -45,6 +47,8 @@ export class IdimWebserviceService {
     }
 
     private async getSoapClient() {
+        this.logger.debug('Creating SOAP client for IDIM web service request at URL: ' + this.idimWebServiceUrl);
+
         // add autorization header for making the soap api call
         const auth =
             'Basic ' +
@@ -65,7 +69,7 @@ export class IdimWebserviceService {
      * 
      * Note on 'ignoredFailureCodes': IDIM webserivce has strange failureCodes on 'NoResults' case for different APIs. On some endpoints 
      * where 'NoResults' is returned by the IDIM SOAP web service is not considered a true error but indicates no results retrieved from the request.
-     * When this is the case, use `this.handleSoapOperationError(error, payload, ['NoResults']);`
+     * When this is the case, use `this.handleSoapOperationError(error, payload, ['NoResults']);` to ignore 'NoResults' from being treated as a failure.
      */
     private handleSoapOperationError(
         error: unknown,
@@ -84,7 +88,8 @@ export class IdimWebserviceService {
             );
         }
 
-        // business error
+        // business error.
+        // Reference to method comment for 'ignoredFailureCodes' condition.
         if (
             payload?.code === SoapSearchResultCode.Failed &&
             !ignoredFailureCodes.includes(payload.failureCode ?? '')
@@ -210,6 +215,25 @@ export class IdimWebserviceService {
     }
 
     // -- Below is the IDIR search endpoint
+
+    /**
+     * Search for IDIR users using the IDIM SOAP web service.
+     * Options: search by userId, firstName, or lastName.
+     *
+     * This method is used when an internal (IDIR) requester needs to search for IDIR users.
+     * It calls the SOAP method: BCeIDService.BCeIDServiceSoap.searchInternalAccount.
+     *
+     * Parameters:
+     *   - body: must include requesterUserGuid (the GUID of the user making the IDIM webservice request)
+     *   - query: may include firstName, lastName, userId, and their respective match modes (Exact/Contains/StartsWith), plus pagination (pageSize, pageIndex)
+     *
+     * The SOAP request is constructed with these parameters and always supplys 'requesterAccountTypeCode: Internal' (requester is a IDIR user).
+     *
+     * The method handles:
+     *   - Transport/network errors (returns 500)
+     *   - Business errors (returns 400)
+     *   - Returns a paginated list of users or an empty result if no matches are found
+     */
     async searchIdirUsers(
         body: SearchIdirUsersBodyDto,
         query: SearchIdirUsersQueryDto,
@@ -218,6 +242,13 @@ export class IdimWebserviceService {
 
         const pageSize = query.pageSize ?? 10;
         const pageIndex = query.pageIndex ?? 1;
+
+        this.logger.debug(
+            `searchIdirUsers called (pageSize=${pageSize}, pageIndex=${pageIndex}, 
+            firstName=${query.firstName}, lastName=${query.lastName}, userId=${query.userId}) 
+            with match modes (firstNameMatchMode=${query.firstNameMatchMode}, lastNameMatchMode=${query.lastNameMatchMode}, 
+            userIdMatchMode=${query.userIdMatchMode})`
+        );
 
         const accountMatch: SoapSearchRequestPayload['internalAccountSearchRequest']['accountMatch'] = {};
         if (query.firstName !== undefined) {
@@ -266,8 +297,17 @@ export class IdimWebserviceService {
 
                     const operationError = this.handleSoapOperationError(error, payload);
                     if (operationError) {
+                        this.logger.debug(
+                            `searchIdirUsers SOAP operation returned handled error (code=${payload?.code ?? 'unknown'}, 
+                            failureCode=${payload?.failureCode ?? 'unknown'}, message=${payload?.message ?? 'unknown'})`,
+                        );
                         return reject(operationError);
                     }
+
+                    this.logger.debug(
+                        `searchIdirUsers SOAP operation succeeded (code=${payload?.code ?? 'unknown'}), 
+                        totalItems=${payload?.pagination?.totalItems ?? 'unknown'}`
+                    );
 
                     return resolve(mapSoapResultToIdirUsersSearchResponse(payload, pageSize, pageIndex));
                 },
