@@ -57,6 +57,9 @@ parameters:
     description: Random expression to make sure deployments update
     from: "[a-zA-Z0-9]{32}"
     generate: expression
+  - name: LOG_LEVEL
+    description: Application log level
+    value: info
 objects:
   - apiVersion: v1
     kind: Secret
@@ -125,6 +128,8 @@ objects:
                   value: ${IDIM_WEB_SERVICE_ID}
                 - name: IDIM_WEB_SERVICE_USERNAME
                   value: ${IDIM_WEB_SERVICE_USERNAME}
+                - name: LOG_LEVEL
+                  value: ${LOG_LEVEL}
                 - name: IDIM_WEB_SERVICE_PASSWORD
                   valueFrom:
                     secretKeyRef:
