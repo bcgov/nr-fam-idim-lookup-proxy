@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { SearchMatchMode } from './constants';
-import { AtLeastOneOf } from '../../common/validators/at-least-one-of.decorator';
+import { AtLeastOneOf } from '../validators/at-least-one-of.decorator';
 
 export class IDIRUserResponse {
     @ApiProperty()
