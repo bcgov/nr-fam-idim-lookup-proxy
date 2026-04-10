@@ -44,7 +44,6 @@ export function mapSoapResultToIdirUsersSearchResponse(
     const response = new SearchIdirUsersResDto();
     response.totalItems = totalItems;
     response.pageSize = responsedPageSize || pageSize;
-    response.pageIndex = responsedPageIndex || pageIndex;
     response.items = items;
     return response;
 }

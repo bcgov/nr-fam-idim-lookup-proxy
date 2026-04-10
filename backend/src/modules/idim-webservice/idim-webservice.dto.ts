@@ -114,19 +114,12 @@ export class SearchIdirUsersReqQueryDto {
     @IsEnum(SearchMatchMode)
     userIdMatchMode?: SearchMatchMode;
 
-    @ApiPropertyOptional({ description: 'Requested page size. Defaults to 10.', default: 10 })
+    @ApiPropertyOptional({ description: 'Requested page size. Defaults to 50.', default: 50 })
     @IsOptional()
     @Transform(({ value }) => (value === undefined ? value : Number.parseInt(value, 10)))
     @IsInt()
     @Min(1)
     pageSize?: number;
-
-    @ApiPropertyOptional({ description: 'Requested page index. Defaults to 1.', default: 1 })
-    @IsOptional()
-    @Transform(({ value }) => (value === undefined ? value : Number.parseInt(value, 10)))
-    @IsInt()
-    @Min(1)
-    pageIndex?: number;
 
     @AtLeastOneOf(['firstName', 'lastName', 'userId'], {
         message: 'At least one of firstName, lastName, or userId must be provided.',
@@ -154,9 +147,6 @@ export class SearchIdirUserResItemDto {
 export class SearchIdirUsersResDto {
     @ApiProperty({ description: 'Total number of matching users returned by SOAP result metadata.' })
     totalItems!: number;
-
-    @ApiProperty({ description: 'Requested page index reflected from SOAP response metadata.' })
-    pageIndex!: number;
 
     @ApiProperty({ description: 'Requested page size reflected from SOAP response metadata.' })
     pageSize!: number;

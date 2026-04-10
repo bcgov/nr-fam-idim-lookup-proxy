@@ -71,8 +71,7 @@ export class IdimWebserviceController {
     @ApiQuery({ name: 'firstNameMatchMode', required: false, enum: SearchMatchMode })
     @ApiQuery({ name: 'lastNameMatchMode', required: false, enum: SearchMatchMode })
     @ApiQuery({ name: 'userIdMatchMode', required: false, enum: SearchMatchMode })
-    @ApiQuery({ name: 'pageSize', required: false, type: Number, description: 'Page size. Defaults to 10.' })
-    @ApiQuery({ name: 'pageIndex', required: false, type: Number, description: 'Page index. Defaults to 1.' })
+    @ApiQuery({ name: 'pageSize', required: false, type: Number, description: 'Page size. Defaults to 50.' })
     @ApiResponse({ status: HttpStatus.OK, type: SearchIdirUsersResDto })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid or missing search parameters, or SOAP business failure.' })
     async searchIdirUsers(

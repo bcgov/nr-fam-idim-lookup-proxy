@@ -224,9 +224,10 @@ export class IdimWebserviceService {
      *
      * Parameters:
      *   - body: must include requesterUserGuid (the GUID of the user making the IDIM webservice request)
-     *   - query: may include firstName, lastName, userId, and their respective match modes (Exact/Contains/StartsWith), plus pagination (pageSize, pageIndex)
+     *   - query: may include firstName, lastName, userId, and their respective match modes (Exact/Contains/StartsWith), plus pagination (pageSize)
+     *   - Note: pageIndex is not exposed to clients because the IDIM SOAP service only supports pageIndex=1; any other value results in a SOAP error ("SOAP error: Page Index must always be 1.").
      *
-     * The SOAP request is constructed with these parameters and always supplys 'requesterAccountTypeCode: Internal' (requester is a IDIR user).
+     * The SOAP request is constructed with these parameters and always supplies 'requesterAccountTypeCode: Internal' (requester is a IDIR user).
      *
      * The method handles:
      *   - Transport/network errors (returns 500)
@@ -239,8 +240,9 @@ export class IdimWebserviceService {
     ): Promise<SearchIdirUsersResDto> {
         this.checkRequiredIDIMCredentials();
 
-        const pageSize = query.pageSize ?? 10;
-        const pageIndex = query.pageIndex ?? 1;
+        const pageSize = query.pageSize ?? 50;
+        // pageIndex is always 1 due to IDIM SOAP limitation (see comment at the method)
+        const pageIndex = 1;
         const onlineServiceId = this.idimWebServiceID as string;
 
         this.logger.debug(

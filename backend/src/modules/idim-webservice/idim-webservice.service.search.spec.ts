@@ -42,14 +42,14 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
 
     it('should call SOAP with correct payload and map result', async () => {
         const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
-        const query: SearchIdirUsersReqQueryDto = { firstName: 'John', pageSize: 5, pageIndex: 2, firstNameMatchMode: SearchMatchMode.Exact };
+        const query: SearchIdirUsersReqQueryDto = { firstName: 'John', pageSize: 5, firstNameMatchMode: SearchMatchMode.Exact };
         const soapResult = {
             searchInternalAccountResult: {
                 code: 'Success',
                 pagination: {
                     totalItems: '1',
                     requestedPageSize: '5',
-                    requestedPageIndex: '2',
+                    requestedPageIndex: '1',
                 },
                 accountList: {
                     BCeIDAccount: {
@@ -69,7 +69,6 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
         expect(result).toEqual({
             totalItems: 1,
             pageSize: 5,
-            pageIndex: 2,
             items: [
                 {
                     userId: 'jdoe',
@@ -83,7 +82,7 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
         expect(soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount).toHaveBeenCalled();
     });
 
-    it('should default pageSize/pageIndex when pagination is omitted', async () => {
+    it('should default pageSize to 50 and enforce pageIndex 1 when pagination is omitted', async () => {
         const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
         const query: SearchIdirUsersReqQueryDto = { firstName: 'John' };
         const soapResult = {
@@ -91,7 +90,7 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
                 code: 'Success',
                 pagination: {
                     totalItems: '0',
-                    requestedPageSize: '10',
+                    requestedPageSize: '50',
                     requestedPageIndex: '1',
                 },
                 accountList: {},
@@ -105,11 +104,10 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
         const payloadSent = soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount.mock.calls[0][0];
 
         expect(payloadSent.internalAccountSearchRequest.pagination).toEqual({
-            pageSizeMaximum: '10',
+            pageSizeMaximum: '50',
             pageIndex: '1',
         });
-        expect(result.pageSize).toBe(10);
-        expect(result.pageIndex).toBe(1);
+        expect(result.pageSize).toBe(50);
     });
 
     it('should use default Contains match mode when match mode is not provided', async () => {
@@ -120,7 +118,7 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
                 code: 'Success',
                 pagination: {
                     totalItems: '0',
-                    requestedPageSize: '10',
+                    requestedPageSize: '50',
                     requestedPageIndex: '1',
                 },
                 accountList: {},
@@ -146,7 +144,7 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
                 code: 'Success',
                 pagination: {
                     totalItems: '0',
-                    requestedPageSize: '10',
+                    requestedPageSize: '50',
                     requestedPageIndex: '1',
                 },
                 accountList: {},
@@ -173,7 +171,7 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
                 code: 'Success',
                 pagination: {
                     totalItems: '0',
-                    requestedPageSize: '10',
+                    requestedPageSize: '50',
                     requestedPageIndex: '1',
                 },
                 accountList: {},

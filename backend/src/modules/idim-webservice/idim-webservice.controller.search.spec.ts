@@ -28,10 +28,9 @@ describe('IdimWebserviceController - searchIdirUsers', () => {
 
     it('should call service with correct params and return result', async () => {
         const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
-        const query: SearchIdirUsersReqQueryDto = { firstName: 'John', pageSize: 5, pageIndex: 2 };
+        const query: SearchIdirUsersReqQueryDto = { firstName: 'John', pageSize: 5 };
         const expected: SearchIdirUsersResDto = {
             totalItems: 1,
-            pageIndex: 2,
             pageSize: 5,
             items: [
                 {
@@ -71,9 +70,8 @@ describe('IdimWebserviceController - searchIdirUsers', () => {
             lastNameMatchMode: SearchMatchMode.Contains,
             userIdMatchMode: SearchMatchMode.Exact,
             pageSize: 20,
-            pageIndex: 3,
         };
-        const expected: SearchIdirUsersResDto = { totalItems: 0, pageIndex: 3, pageSize: 20, items: [] };
+        const expected: SearchIdirUsersResDto = { totalItems: 0, pageSize: 20, items: [] };
         (service.searchIdirUsers as jest.Mock).mockResolvedValue(expected);
 
         const result = await controller.searchIdirUsers(body, query);
