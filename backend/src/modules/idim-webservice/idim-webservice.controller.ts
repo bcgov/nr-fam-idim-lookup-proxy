@@ -1,12 +1,14 @@
 import {
+    Body,
     Controller,
     Get,
     HttpException,
     HttpStatus,
+    Post,
     Query,
     UseGuards,
     UsePipes,
-    ValidationPipe,
+    ValidationPipe
 } from '@nestjs/common';
 import {
     ApiBody,
@@ -16,20 +18,19 @@ import {
     ApiSecurity,
     ApiTags,
 } from '@nestjs/swagger';
-import { Body, Post } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
+import {
+    RequesterAccountTypeCode,
+    SearchMatchMode,
+    SearchUserParameterType,
+} from './constants';
 import {
     BCEIDUserResponse,
     IDIRUserResponse,
-    SearchIdirUsersBodyDto,
-    SearchIdirUsersQueryDto,
-    SearchIdirUsersResponseDto,
+    SearchIdirUsersReqBodyDto,
+    SearchIdirUsersReqQueryDto,
+    SearchIdirUsersResDto,
 } from './idim-webservice.dto';
-import {
-    RequesterAccountTypeCode,
-    SearchUserParameterType,
-    SearchMatchMode,
-} from './constants';
 import { IdimWebserviceService } from './idim-webservice.service';
 
 @ApiTags('IDIM Webservice')
@@ -63,7 +64,7 @@ export class IdimWebserviceController {
         description:
             'Searches IDIR users by firstName, lastName, or userId via IDIM WebService (partial match allowed for search).'
     })
-    @ApiBody({ type: SearchIdirUsersBodyDto })
+    @ApiBody({ type: SearchIdirUsersReqBodyDto })
     @ApiQuery({ name: 'firstName', required: false, description: 'IDIR first name search value.', type: String })
     @ApiQuery({ name: 'lastName', required: false, description: 'IDIR last name search value.', type: String })
     @ApiQuery({ name: 'userId', required: false, description: 'IDIR user ID search value.', type: String })
@@ -72,12 +73,12 @@ export class IdimWebserviceController {
     @ApiQuery({ name: 'userIdMatchMode', required: false, enum: SearchMatchMode })
     @ApiQuery({ name: 'pageSize', required: false, type: Number, description: 'Page size. Defaults to 10.' })
     @ApiQuery({ name: 'pageIndex', required: false, type: Number, description: 'Page index. Defaults to 1.' })
-    @ApiResponse({ status: HttpStatus.OK, type: SearchIdirUsersResponseDto })
+    @ApiResponse({ status: HttpStatus.OK, type: SearchIdirUsersResDto })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid or missing search parameters, or SOAP business failure.' })
     async searchIdirUsers(
-        @Body() body: SearchIdirUsersBodyDto,
-        @Query() query: SearchIdirUsersQueryDto,
-    ): Promise<SearchIdirUsersResponseDto> {
+        @Body() body: SearchIdirUsersReqBodyDto,
+        @Query() query: SearchIdirUsersReqQueryDto,
+    ): Promise<SearchIdirUsersResDto> {
         return this.idimWebserviceService.searchIdirUsers(body, query);
     }
 

@@ -2,9 +2,9 @@ import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import {
     BCEIDUserResponse,
     IDIRUserResponse,
-    SearchIdirUsersBodyDto,
-    SearchIdirUsersQueryDto,
-    SearchIdirUsersResponseDto,
+    SearchIdirUsersReqBodyDto,
+    SearchIdirUsersReqQueryDto,
+    SearchIdirUsersResDto,
 } from './idim-webservice.dto';
 import {
     RequesterAccountTypeCode,
@@ -235,9 +235,9 @@ export class IdimWebserviceService {
      *   - Returns a paginated list of users or an empty result if no matches are found
      */
     async searchIdirUsers(
-        body: SearchIdirUsersBodyDto,
-        query: SearchIdirUsersQueryDto,
-    ): Promise<SearchIdirUsersResponseDto> {
+        body: SearchIdirUsersReqBodyDto,
+        query: SearchIdirUsersReqQueryDto,
+    ): Promise<SearchIdirUsersResDto> {
         this.checkRequiredIDIMCredentials();
 
         const pageSize = query.pageSize ?? 10;
@@ -289,7 +289,7 @@ export class IdimWebserviceService {
 
         const client = await this.getSoapClient();
 
-        return new Promise<SearchIdirUsersResponseDto>((resolve, reject) => {
+        return new Promise<SearchIdirUsersResDto>((resolve, reject) => {
             client.BCeIDService.BCeIDServiceSoap.searchInternalAccount(
                 requestPayload,
                 (error: unknown, result: SoapSearchResultEnvelope) => {

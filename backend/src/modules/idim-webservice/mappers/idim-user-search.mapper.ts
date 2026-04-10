@@ -1,6 +1,6 @@
 import {
-    SearchIdirUserResponseItemDto,
-    SearchIdirUsersResponseDto,
+    SearchIdirUserResItemDto,
+    SearchIdirUsersResDto,
 } from '../idim-webservice.dto';
 import {
     SoapInternalAccountSummary,
@@ -11,7 +11,7 @@ export function mapSoapResultToIdirUsersSearchResponse(
     payload: SoapSearchResultPayload,
     pageSize: number,
     pageIndex: number
-): SearchIdirUsersResponseDto {
+): SearchIdirUsersResDto {
     const pagination = payload.pagination;
     const totalItems = Number(pagination.totalItems);
     const responsedPageSize = Number(pagination.requestedPageSize);
@@ -30,9 +30,9 @@ export function mapSoapResultToIdirUsersSearchResponse(
         accounts = [rawAccounts];
     }
 
-    const items: SearchIdirUserResponseItemDto[] = accounts.map((acct) => {
+    const items: SearchIdirUserResItemDto[] = accounts.map((acct) => {
         // DTO mapping from SOAP response to our API response object
-        const item = new SearchIdirUserResponseItemDto();
+        const item = new SearchIdirUserResItemDto();
         item.userId = acct.userId.value;
         item.guid = acct.guid.value;
         item.firstName = acct.individualIdentity.name.firstname.value;
@@ -41,7 +41,7 @@ export function mapSoapResultToIdirUsersSearchResponse(
         return item;
     });
 
-    const response = new SearchIdirUsersResponseDto();
+    const response = new SearchIdirUsersResDto();
     response.totalItems = totalItems;
     response.pageSize = responsedPageSize || pageSize;
     response.pageIndex = responsedPageIndex || pageIndex;

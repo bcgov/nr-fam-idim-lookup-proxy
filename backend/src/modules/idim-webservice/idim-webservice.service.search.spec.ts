@@ -1,6 +1,6 @@
 import { IdimWebserviceService } from './idim-webservice.service';
 import { HttpStatus } from '@nestjs/common';
-import { SearchIdirUsersBodyDto, SearchIdirUsersQueryDto } from './idim-webservice.dto';
+import { SearchIdirUsersReqBodyDto, SearchIdirUsersReqQueryDto } from './idim-webservice.dto';
 import { SearchMatchMode } from './constants';
 import * as soap from 'soap';
 
@@ -41,8 +41,8 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
     });
 
     it('should call SOAP with correct payload and map result', async () => {
-        const body: SearchIdirUsersBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
-        const query: SearchIdirUsersQueryDto = { firstName: 'John', pageSize: 5, pageIndex: 2, firstNameMatchMode: SearchMatchMode.Exact };
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { firstName: 'John', pageSize: 5, pageIndex: 2, firstNameMatchMode: SearchMatchMode.Exact };
         const soapResult = {
             searchInternalAccountResult: {
                 code: 'Success',
@@ -84,8 +84,8 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
     });
 
     it('should default pageSize/pageIndex when pagination is omitted', async () => {
-        const body: SearchIdirUsersBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
-        const query: SearchIdirUsersQueryDto = { firstName: 'John' };
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { firstName: 'John' };
         const soapResult = {
             searchInternalAccountResult: {
                 code: 'Success',
@@ -113,8 +113,8 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
     });
 
     it('should use default Contains match mode when match mode is not provided', async () => {
-        const body: SearchIdirUsersBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
-        const query: SearchIdirUsersQueryDto = { firstName: 'John', userId: 'jdoe' };
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { firstName: 'John', userId: 'jdoe' };
         const soapResult = {
             searchInternalAccountResult: {
                 code: 'Success',
@@ -139,8 +139,8 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
     });
 
     it('should include only provided search fields in accountMatch payload', async () => {
-        const body: SearchIdirUsersBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
-        const query: SearchIdirUsersQueryDto = { userId: 'jdoe' };
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { userId: 'jdoe' };
         const soapResult = {
             searchInternalAccountResult: {
                 code: 'Success',
@@ -166,8 +166,8 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
     });
 
     it('should create SOAP client with Authorization header and add the same HTTP header', async () => {
-        const body: SearchIdirUsersBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
-        const query: SearchIdirUsersQueryDto = { userId: 'jdoe' };
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { userId: 'jdoe' };
         const soapResult = {
             searchInternalAccountResult: {
                 code: 'Success',
@@ -198,8 +198,8 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
     });
 
     it('should reject with 500 and skip SOAP call when required credentials are missing', async () => {
-        const body: SearchIdirUsersBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
-        const query: SearchIdirUsersQueryDto = { userId: 'jdoe' };
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { userId: 'jdoe' };
 
         delete process.env.IDIM_WEB_SERVICE_PASSWORD;
         const serviceWithMissingCredentials = new IdimWebserviceService();
@@ -216,8 +216,8 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
     it('should handle SOAP transport error', async () => {
         // Simulate a network/transport error from the SOAP client (e.g., connection failure).
         // The service should catch this and reject with an HttpException containing a custom error message.
-        const body: SearchIdirUsersBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
-        const query: SearchIdirUsersQueryDto = { userId: 'fail' };
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { userId: 'fail' };
         soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount.mockImplementation((payload, cb) => {
             cb(new Error('SOAP transport error'), null);
         });
@@ -232,8 +232,8 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
         // Simulate a SOAP business-level failure payload.
         // The service should convert this into a BAD_REQUEST HttpException
         // and preserve SOAP failure metadata for clients.
-        const body: SearchIdirUsersBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
-        const query: SearchIdirUsersQueryDto = { userId: 'fail' };
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { userId: 'fail' };
         const soapResult = {
             searchInternalAccountResult: {
                 code: 'Failed',

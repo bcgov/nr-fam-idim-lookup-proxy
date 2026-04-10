@@ -59,7 +59,7 @@ export class BCEIDUserResponse {
     email!: string;
 }
 
-export class SearchIdirUsersBodyDto {
+export class SearchIdirUsersReqBodyDto {
     @ApiProperty({
         description: 'Requester user GUID (32 alphanumeric characters).',
         minLength: 32,
@@ -71,7 +71,7 @@ export class SearchIdirUsersBodyDto {
     requesterUserGuid!: string;
 }
 
-export class SearchIdirUsersQueryDto {
+export class SearchIdirUsersReqQueryDto {
     @ApiPropertyOptional({ description: 'IDIR first name search value.', maxLength: 50 })
     @IsOptional()
     @IsString()
@@ -116,14 +116,14 @@ export class SearchIdirUsersQueryDto {
 
     @ApiPropertyOptional({ description: 'Requested page size. Defaults to 10.', default: 10 })
     @IsOptional()
-    @Transform(({ value }) => (value !== undefined ? parseInt(value, 10) : value))
+    @Transform(({ value }) => (value === undefined ? value : Number.parseInt(value, 10)))
     @IsInt()
     @Min(1)
     pageSize?: number;
 
     @ApiPropertyOptional({ description: 'Requested page index. Defaults to 1.', default: 1 })
     @IsOptional()
-    @Transform(({ value }) => (value !== undefined ? parseInt(value, 10) : value))
+    @Transform(({ value }) => (value === undefined ? value : Number.parseInt(value, 10)))
     @IsInt()
     @Min(1)
     pageIndex?: number;
@@ -134,7 +134,7 @@ export class SearchIdirUsersQueryDto {
     readonly _atLeastOneSearchField?: never;
 }
 
-export class SearchIdirUserResponseItemDto {
+export class SearchIdirUserResItemDto {
     @ApiProperty()
     userId!: string;
 
@@ -151,7 +151,7 @@ export class SearchIdirUserResponseItemDto {
     email!: string;
 }
 
-export class SearchIdirUsersResponseDto {
+export class SearchIdirUsersResDto {
     @ApiProperty({ description: 'Total number of matching users returned by SOAP result metadata.' })
     totalItems!: number;
 
@@ -161,6 +161,6 @@ export class SearchIdirUsersResponseDto {
     @ApiProperty({ description: 'Requested page size reflected from SOAP response metadata.' })
     pageSize!: number;
 
-    @ApiProperty({ type: () => [SearchIdirUserResponseItemDto] })
-    items!: SearchIdirUserResponseItemDto[];
+    @ApiProperty({ type: () => [SearchIdirUserResItemDto] })
+    items!: SearchIdirUserResItemDto[];
 }

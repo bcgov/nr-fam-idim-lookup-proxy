@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ArgumentMetadata, HttpException, HttpStatus, ValidationPipe } from '@nestjs/common';
 import { IdimWebserviceController } from './idim-webservice.controller';
 import { IdimWebserviceService } from './idim-webservice.service';
-import { SearchIdirUsersBodyDto, SearchIdirUsersQueryDto, SearchIdirUsersResponseDto } from './idim-webservice.dto';
+import { SearchIdirUsersReqBodyDto, SearchIdirUsersReqQueryDto, SearchIdirUsersResDto } from './idim-webservice.dto';
 import { SearchMatchMode } from './constants';
 
 describe('IdimWebserviceController - searchIdirUsers', () => {
@@ -27,9 +27,9 @@ describe('IdimWebserviceController - searchIdirUsers', () => {
     });
 
     it('should call service with correct params and return result', async () => {
-        const body: SearchIdirUsersBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
-        const query: SearchIdirUsersQueryDto = { firstName: 'John', pageSize: 5, pageIndex: 2 };
-        const expected: SearchIdirUsersResponseDto = {
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { firstName: 'John', pageSize: 5, pageIndex: 2 };
+        const expected: SearchIdirUsersResDto = {
             totalItems: 1,
             pageIndex: 2,
             pageSize: 5,
@@ -53,8 +53,8 @@ describe('IdimWebserviceController - searchIdirUsers', () => {
     it('should propagate HttpException when service.searchIdirUsers rejects', async () => {
         // The service throws HttpException for SOAP transport/business errors.
         // Controller should not transform it.
-        const body: SearchIdirUsersBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
-        const query: SearchIdirUsersQueryDto = { userId: 'fail' };
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { userId: 'fail' };
         const error = new HttpException({ error: 'IDIM web service call error: SOAP error' }, HttpStatus.INTERNAL_SERVER_ERROR);
         (service.searchIdirUsers as jest.Mock).mockRejectedValue(error);
 
@@ -62,8 +62,8 @@ describe('IdimWebserviceController - searchIdirUsers', () => {
     });
 
     it('should forward search query fields including explicit match modes', async () => {
-        const body: SearchIdirUsersBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
-        const query: SearchIdirUsersQueryDto = {
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = {
             firstName: 'Jo',
             lastName: 'Do',
             userId: 'jd',
@@ -73,7 +73,7 @@ describe('IdimWebserviceController - searchIdirUsers', () => {
             pageSize: 20,
             pageIndex: 3,
         };
-        const expected: SearchIdirUsersResponseDto = { totalItems: 0, pageIndex: 3, pageSize: 20, items: [] };
+        const expected: SearchIdirUsersResDto = { totalItems: 0, pageIndex: 3, pageSize: 20, items: [] };
         (service.searchIdirUsers as jest.Mock).mockResolvedValue(expected);
 
         const result = await controller.searchIdirUsers(body, query);
@@ -85,7 +85,7 @@ describe('IdimWebserviceController - searchIdirUsers', () => {
         const pipe = new ValidationPipe({ whitelist: true, transform: true });
         const metadata: ArgumentMetadata = {
             type: 'query',
-            metatype: SearchIdirUsersQueryDto,
+            metatype: SearchIdirUsersReqQueryDto,
             data: undefined,
         };
 
