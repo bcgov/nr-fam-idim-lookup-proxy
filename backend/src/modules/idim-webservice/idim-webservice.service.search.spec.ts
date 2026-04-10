@@ -1,5 +1,5 @@
 import { IdimWebserviceService } from './idim-webservice.service';
-import { HttpStatus } from '@nestjs/common';
+import { HttpStatus, Logger } from '@nestjs/common';
 import { SearchIdirUsersReqBodyDto, SearchIdirUsersReqQueryDto } from './idim-webservice.dto';
 import { SearchMatchMode } from './constants';
 import * as soap from 'soap';
@@ -12,6 +12,8 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
     let service: IdimWebserviceService;
     let soapClientMock: any;
     let createClientAsyncMock: jest.Mock;
+    let loggerLogSpy: jest.SpyInstance;
+    let loggerWarnSpy: jest.SpyInstance;
     const envBackup = { ...process.env };
 
     beforeEach(() => {
@@ -33,11 +35,15 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
         createClientAsyncMock.mockResolvedValue(soapClientMock);
 
         service = new IdimWebserviceService();
+        loggerLogSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation();
+        loggerWarnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation();
     });
 
     afterEach(() => {
         jest.resetAllMocks();
         process.env = { ...envBackup };
+        loggerLogSpy.mockRestore();
+        loggerWarnSpy.mockRestore();
     });
 
     it('should call SOAP with correct payload and map result', async () => {
@@ -80,6 +86,13 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
             ],
         });
         expect(soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount).toHaveBeenCalled();
+        expect(
+            loggerLogSpy.mock.calls.some(
+                ([message]) =>
+                    typeof message === 'string' &&
+                    message.includes('searchIdirUsers SOAP searchInternalAccount call completed in '),
+            ),
+        ).toBe(true);
     });
 
     it('should default pageSize to 50 and enforce pageIndex 1 when pagination is omitted', async () => {
@@ -224,6 +237,13 @@ describe('IdimWebserviceService - searchIdirUsers', () => {
                 error: expect.stringContaining('IDIM web service call error'),
             }),
         });
+        expect(
+            loggerWarnSpy.mock.calls.some(
+                ([message]) =>
+                    typeof message === 'string' &&
+                    message.includes('searchIdirUsers SOAP searchInternalAccount call failed in '),
+            ),
+        ).toBe(true);
     });
 
     it('should handle SOAP business error', async () => {

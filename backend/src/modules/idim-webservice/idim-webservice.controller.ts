@@ -18,6 +18,7 @@ import {
     ApiSecurity,
     ApiTags,
 } from '@nestjs/swagger';
+import { Timed } from '../../common/decorators/timed.decorator';
 import { AuthGuard } from '../auth/auth.guard';
 import {
     RequesterAccountTypeCode,
@@ -74,6 +75,7 @@ export class IdimWebserviceController {
     @ApiQuery({ name: 'pageSize', required: false, type: Number, description: 'Page size. Defaults to 50.' })
     @ApiResponse({ status: HttpStatus.OK, type: SearchIdirUsersResDto })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid or missing search parameters, or SOAP business failure.' })
+    @Timed('searchIdirUsers controller request')
     async searchIdirUsers(
         @Body() body: SearchIdirUsersReqBodyDto,
         @Query() query: SearchIdirUsersReqQueryDto,

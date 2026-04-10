@@ -19,7 +19,7 @@ import {
     SoapSearchResultEnvelope,
 } from './types/idim-soap.types';
 import { mapSoapResultToIdirUsersSearchResponse } from './mappers/idim-user-search.mapper';
-import { toErrorMessage } from '../../common/util';
+import { toErrorMessage, withExecutionTiming } from '../../common/util';
 const soap = require('soap');
 
 @Injectable()
@@ -291,30 +291,35 @@ export class IdimWebserviceService {
 
         const client = await this.getSoapClient();
 
-        return new Promise<SearchIdirUsersResDto>((resolve, reject) => {
-            client.BCeIDService.BCeIDServiceSoap.searchInternalAccount(
-                requestPayload,
-                (error: unknown, result: SoapSearchResultEnvelope) => {
-                    const payload = result?.searchInternalAccountResult;
+        return withExecutionTiming(
+            this.logger,
+            'searchIdirUsers SOAP searchInternalAccount call',
+            () =>
+                new Promise<SearchIdirUsersResDto>((resolve, reject) => {
+                    client.BCeIDService.BCeIDServiceSoap.searchInternalAccount(
+                        requestPayload,
+                        (error: unknown, result: SoapSearchResultEnvelope) => {
+                            const payload = result?.searchInternalAccountResult;
 
-                    const operationError = this.handleSoapOperationError(error, payload);
-                    if (operationError) {
-                        this.logger.debug(
-                            `searchIdirUsers SOAP operation returned handled error (code=${payload?.code ?? 'unknown'}, 
+                            const operationError = this.handleSoapOperationError(error, payload);
+                            if (operationError) {
+                                this.logger.debug(
+                                    `searchIdirUsers SOAP operation returned handled error (code=${payload?.code ?? 'unknown'}, 
                             failureCode=${payload?.failureCode ?? 'unknown'}, message=${payload?.message ?? 'unknown'})`,
-                        );
-                        return reject(operationError);
-                    }
+                                );
+                                return reject(operationError);
+                            }
 
-                    this.logger.debug(
-                        `searchIdirUsers SOAP operation succeeded (code=${payload?.code ?? 'unknown'}), 
+                            this.logger.debug(
+                                `searchIdirUsers SOAP operation succeeded (code=${payload?.code ?? 'unknown'}), 
                         totalItems=${payload?.pagination?.totalItems ?? 'unknown'}`
-                    );
+                            );
 
-                    return resolve(mapSoapResultToIdirUsersSearchResponse(payload, pageSize, pageIndex));
-                },
-            );
-        });
+                            return resolve(mapSoapResultToIdirUsersSearchResponse(payload, pageSize, pageIndex));
+                        },
+                    );
+                }),
+        );
     }
 
     // -- Below are for BCeID IDIM call
