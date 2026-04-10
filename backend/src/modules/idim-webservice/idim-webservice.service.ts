@@ -19,6 +19,7 @@ import {
     SoapSearchResultEnvelope,
 } from './types/idim-soap.types';
 import { mapSoapResultToIdirUsersSearchResponse } from './mappers/idim-user-search.mapper';
+import { toErrorMessage } from '../../common/util';
 const soap = require('soap');
 
 @Injectable()
@@ -83,7 +84,7 @@ export class IdimWebserviceService {
         // Webservice call error
         if (error) {
             return new HttpException(
-                { error: 'IDIM web service call error: ' + error },
+                { error: `IDIM web service call error: ${toErrorMessage(error)}` },
                 HttpStatus.INTERNAL_SERVER_ERROR,
             );
         }
@@ -145,9 +146,7 @@ export class IdimWebserviceService {
                             return reject(
                                 new HttpException(
                                     {
-                                        error:
-                                            'IDIM web service call error: ' +
-                                            error,
+                                        error: `IDIM web service call error: ${toErrorMessage(error)}`,
                                     },
                                     HttpStatus.INTERNAL_SERVER_ERROR
                                 )
@@ -208,7 +207,7 @@ export class IdimWebserviceService {
             });
         } catch (error) {
             return new HttpException(
-                { error: 'Error happened when call verifyIdirUserByIdimAccountDetail: ' + error },
+                { error: `Error happened when call verifyIdirUserByIdimAccountDetail: ${toErrorMessage(error)}` },
                 HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
@@ -242,6 +241,7 @@ export class IdimWebserviceService {
 
         const pageSize = query.pageSize ?? 10;
         const pageIndex = query.pageIndex ?? 1;
+        const onlineServiceId = this.idimWebServiceID as string;
 
         this.logger.debug(
             `searchIdirUsers called (pageSize=${pageSize}, pageIndex=${pageIndex}, 
@@ -272,7 +272,7 @@ export class IdimWebserviceService {
 
         const requestPayload: SoapSearchRequestPayload = {
             internalAccountSearchRequest: {
-                onlineServiceId: this.idimWebServiceID!,
+                onlineServiceId,
                 requesterAccountTypeCode: RequesterAccountTypeCode.Internal,
                 requesterUserGuid: body.requesterUserGuid,
                 pagination: {
@@ -348,9 +348,7 @@ export class IdimWebserviceService {
                             return reject(
                                 new HttpException(
                                     {
-                                        error:
-                                            'IDIM web service call error: ' +
-                                            error,
+                                        error: `IDIM web service call error: ${toErrorMessage(error)}`,
                                     },
                                     HttpStatus.INTERNAL_SERVER_ERROR
                                 )
@@ -420,7 +418,7 @@ export class IdimWebserviceService {
             });
         } catch (error) {
             return new HttpException(
-                { error: 'Error happened when call verifyBceidUser: ' + error },
+                { error: `Error happened when call verifyBceidUser: ${toErrorMessage(error)}` },
                 HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
@@ -468,9 +466,7 @@ export class IdimWebserviceService {
                             return reject(
                                 new HttpException(
                                     {
-                                        error:
-                                            'IDIM web service call error: ' +
-                                            error,
+                                        error: `IDIM web service call error: ${toErrorMessage(error)}`,
                                     },
                                     HttpStatus.INTERNAL_SERVER_ERROR
                                 )
@@ -533,7 +529,7 @@ export class IdimWebserviceService {
             });
         } catch (error) {
             return new HttpException(
-                { error: 'Error happened when call verifyIdirUser: ' + error },
+                { error: `Error happened when call verifyIdirUser: ${toErrorMessage(error)}` },
                 HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
@@ -572,9 +568,7 @@ export class IdimWebserviceService {
                             return reject(
                                 new HttpException(
                                     {
-                                        error:
-                                            'IDIM web service call error: ' +
-                                            error,
+                                        error: `IDIM web service call error: ${toErrorMessage(error)}`,
                                     },
                                     HttpStatus.INTERNAL_SERVER_ERROR
                                 )
@@ -640,7 +634,7 @@ export class IdimWebserviceService {
             });
         } catch (error) {
             return new HttpException(
-                { error: 'Error happened when call verifyBceidUser: ' + error },
+                { error: `Error happened when call verifyBceidUser: ${toErrorMessage(error)}` },
                 HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
