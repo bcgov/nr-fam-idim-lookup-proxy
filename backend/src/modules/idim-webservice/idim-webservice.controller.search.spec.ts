@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { ArgumentMetadata, HttpException, HttpStatus, ValidationPipe } from '@nestjs/common';
 import { IdimWebserviceController } from './idim-webservice.controller';
 import { IdimWebserviceService } from './idim-webservice.service';
 import { SearchIdirUsersBodyDto, SearchIdirUsersQueryDto, SearchIdirUsersResponseDto } from './idim-webservice.dto';
@@ -79,5 +79,23 @@ describe('IdimWebserviceController - searchIdirUsers', () => {
         const result = await controller.searchIdirUsers(body, query);
         expect(service.searchIdirUsers).toHaveBeenCalledWith(body, query);
         expect(result).toEqual(expected);
+    });
+
+    it('should return validation error when no search query field is provided', async () => {
+        const pipe = new ValidationPipe({ whitelist: true, transform: true });
+        const metadata: ArgumentMetadata = {
+            type: 'query',
+            metatype: SearchIdirUsersQueryDto,
+            data: undefined,
+        };
+
+        await expect(pipe.transform({}, metadata)).rejects.toMatchObject({
+            status: HttpStatus.BAD_REQUEST,
+            response: expect.objectContaining({
+                message: expect.arrayContaining([
+                    'At least one of firstName, lastName, or userId must be provided.',
+                ]),
+            }),
+        });
     });
 });
