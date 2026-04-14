@@ -15,7 +15,6 @@ export function mapSoapResultToIdirUsersSearchResponse(
     const pagination = payload.pagination;
     const totalItems = Number(pagination.totalItems);
     const responsedPageSize = Number(pagination.requestedPageSize);
-    const responsedPageIndex = Number(pagination.requestedPageIndex);
 
     // Eventhough IDIR user is an internal account, the SOAP (API - developer guide) BCeIDAccount field is the return in the response, which is a bit confusing.
     const rawAccounts = payload.accountList?.BCeIDAccount;
