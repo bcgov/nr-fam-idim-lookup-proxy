@@ -22,6 +22,9 @@ async function bootstrap() {
     app.set('trust proxy', 1);
     app.enableShutdownHooks();
 
+    // TODO: Enable global ValidationPipe once legacy endpoints are aligned with DTO-based validation. //NOSONAR
+    // For now, ValidationPipe is applied only to the new search endpoint to avoid behavior changes.
+
     // Swagger
     const config = new DocumentBuilder()
         .setTitle('IDIM Lookup Proxy API')

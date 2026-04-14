@@ -1,0 +1,276 @@
+import { IdimWebserviceService } from './idim-webservice.service';
+import { HttpStatus, Logger } from '@nestjs/common';
+import { SearchIdirUsersReqBodyDto, SearchIdirUsersReqQueryDto } from './idim-webservice.dto';
+import { SearchMatchMode } from './constants';
+import * as soap from 'soap';
+
+jest.mock('soap', () => ({
+    createClientAsync: jest.fn(),
+}));
+
+describe('IdimWebserviceService - searchIdirUsers', () => {
+    let service: IdimWebserviceService;
+    let soapClientMock: any;
+    let createClientAsyncMock: jest.Mock;
+    let loggerLogSpy: jest.SpyInstance;
+    let loggerWarnSpy: jest.SpyInstance;
+    const envBackup = { ...process.env };
+
+    beforeEach(() => {
+        process.env.IDIM_WEB_SERVICE_URL = 'http://mock-url';
+        process.env.IDIM_WEB_SERVICE_ID = 'mock-service-id';
+        process.env.IDIM_WEB_SERVICE_USERNAME = 'mock-user';
+        process.env.IDIM_WEB_SERVICE_PASSWORD = 'mock-pass';
+
+        soapClientMock = {
+            BCeIDService: {
+                BCeIDServiceSoap: {
+                    searchInternalAccount: jest.fn(),
+                },
+            },
+            addHttpHeader: jest.fn(),
+        };
+
+        createClientAsyncMock = soap.createClientAsync as jest.Mock;
+        createClientAsyncMock.mockResolvedValue(soapClientMock);
+
+        service = new IdimWebserviceService();
+        loggerLogSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation();
+        loggerWarnSpy = jest.spyOn(Logger.prototype, 'warn').mockImplementation();
+    });
+
+    afterEach(() => {
+        jest.resetAllMocks();
+        process.env = { ...envBackup };
+        loggerLogSpy.mockRestore();
+        loggerWarnSpy.mockRestore();
+    });
+
+    it('should call SOAP with correct payload and map result', async () => {
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { firstName: 'John', pageSize: 5, firstNameMatchMode: SearchMatchMode.Exact };
+        const soapResult = {
+            searchInternalAccountResult: {
+                code: 'Success',
+                pagination: {
+                    totalItems: '1',
+                    requestedPageSize: '5',
+                    requestedPageIndex: '1',
+                },
+                accountList: {
+                    BCeIDAccount: {
+                        userId: { value: 'jdoe' },
+                        guid: { value: 'guid1' },
+                        individualIdentity: { name: { firstname: { value: 'John' }, surname: { value: 'Doe' } } },
+                        contact: { email: { value: 'john.doe@example.com' } },
+                    },
+                },
+            },
+        };
+        soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount.mockImplementation((payload, cb) => {
+            cb(null, soapResult);
+        });
+
+        const result = await service.searchIdirUsers(body, query);
+        expect(result).toEqual({
+            totalItems: 1,
+            pageSize: 5,
+            items: [
+                {
+                    userId: 'jdoe',
+                    guid: 'guid1',
+                    firstName: 'John',
+                    lastName: 'Doe',
+                    email: 'john.doe@example.com',
+                },
+            ],
+        });
+        expect(soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount).toHaveBeenCalled();
+        expect(
+            loggerLogSpy.mock.calls.some(
+                ([message]) =>
+                    typeof message === 'string' &&
+                    message.includes('searchIdirUsers SOAP searchInternalAccount call completed in '),
+            ),
+        ).toBe(true);
+    });
+
+    it('should default pageSize to 50 and enforce pageIndex 1 when pagination is omitted', async () => {
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { firstName: 'John' };
+        const soapResult = {
+            searchInternalAccountResult: {
+                code: 'Success',
+                pagination: {
+                    totalItems: '0',
+                    requestedPageSize: '50',
+                    requestedPageIndex: '1',
+                },
+                accountList: {},
+            },
+        };
+        soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount.mockImplementation((payload, cb) => {
+            cb(null, soapResult);
+        });
+
+        const result = await service.searchIdirUsers(body, query);
+        const payloadSent = soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount.mock.calls[0][0];
+
+        expect(payloadSent.internalAccountSearchRequest.pagination).toEqual({
+            pageSizeMaximum: '50',
+            pageIndex: '1',
+        });
+        expect(result.pageSize).toBe(50);
+    });
+
+    it('should use default Contains match mode when match mode is not provided', async () => {
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { firstName: 'John', userId: 'jdoe' };
+        const soapResult = {
+            searchInternalAccountResult: {
+                code: 'Success',
+                pagination: {
+                    totalItems: '0',
+                    requestedPageSize: '50',
+                    requestedPageIndex: '1',
+                },
+                accountList: {},
+            },
+        };
+        soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount.mockImplementation((payload, cb) => {
+            cb(null, soapResult);
+        });
+
+        await service.searchIdirUsers(body, query);
+        const payloadSent = soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount.mock.calls[0][0];
+        const accountMatch = payloadSent.internalAccountSearchRequest.accountMatch;
+
+        expect(accountMatch.firstName).toEqual({ value: 'John', matchPropertyUsing: SearchMatchMode.Contains });
+        expect(accountMatch.userId).toEqual({ value: 'jdoe', matchPropertyUsing: SearchMatchMode.Contains });
+    });
+
+    it('should include only provided search fields in accountMatch payload', async () => {
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { userId: 'jdoe' };
+        const soapResult = {
+            searchInternalAccountResult: {
+                code: 'Success',
+                pagination: {
+                    totalItems: '0',
+                    requestedPageSize: '50',
+                    requestedPageIndex: '1',
+                },
+                accountList: {},
+            },
+        };
+        soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount.mockImplementation((payload, cb) => {
+            cb(null, soapResult);
+        });
+
+        await service.searchIdirUsers(body, query);
+        const payloadSent = soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount.mock.calls[0][0];
+        const accountMatch = payloadSent.internalAccountSearchRequest.accountMatch;
+
+        expect(accountMatch).toEqual({
+            userId: { value: 'jdoe', matchPropertyUsing: SearchMatchMode.Contains },
+        });
+    });
+
+    it('should create SOAP client with Authorization header and add the same HTTP header', async () => {
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { userId: 'jdoe' };
+        const soapResult = {
+            searchInternalAccountResult: {
+                code: 'Success',
+                pagination: {
+                    totalItems: '0',
+                    requestedPageSize: '50',
+                    requestedPageIndex: '1',
+                },
+                accountList: {},
+            },
+        };
+        soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount.mockImplementation((payload, cb) => {
+            cb(null, soapResult);
+        });
+
+        await service.searchIdirUsers(body, query);
+
+        const expectedAuth =
+            'Basic ' + Buffer.from('mock-user:mock-pass').toString('base64');
+
+        expect(createClientAsyncMock).toHaveBeenCalledWith('http://mock-url', {
+            wsdl_headers: { Authorization: expectedAuth },
+        });
+        expect(soapClientMock.addHttpHeader).toHaveBeenCalledWith(
+            'Authorization',
+            expectedAuth,
+        );
+    });
+
+    it('should reject with 500 and skip SOAP call when required credentials are missing', async () => {
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { userId: 'jdoe' };
+
+        delete process.env.IDIM_WEB_SERVICE_PASSWORD;
+        const serviceWithMissingCredentials = new IdimWebserviceService();
+
+        await expect(serviceWithMissingCredentials.searchIdirUsers(body, query)).rejects.toMatchObject({
+            status: HttpStatus.INTERNAL_SERVER_ERROR,
+            response: expect.objectContaining({
+                error: expect.stringContaining('Missing IDIM web service crednetials'),
+            }),
+        });
+        expect(createClientAsyncMock).not.toHaveBeenCalled();
+    });
+
+    it('should handle SOAP transport error', async () => {
+        // Simulate a network/transport error from the SOAP client (e.g., connection failure).
+        // The service should catch this and reject with an HttpException containing a custom error message.
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { userId: 'fail' };
+        soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount.mockImplementation((payload, cb) => {
+            cb(new Error('SOAP transport error'), null);
+        });
+        await expect(service.searchIdirUsers(body, query)).rejects.toMatchObject({
+            response: expect.objectContaining({
+                error: expect.stringContaining('IDIM web service call error'),
+            }),
+        });
+        expect(
+            loggerWarnSpy.mock.calls.some(
+                ([message]) =>
+                    typeof message === 'string' &&
+                    message.includes('searchIdirUsers SOAP searchInternalAccount call failed in '),
+            ),
+        ).toBe(true);
+    });
+
+    it('should handle SOAP business error', async () => {
+        // Simulate a SOAP business-level failure payload.
+        // The service should convert this into a BAD_REQUEST HttpException
+        // and preserve SOAP failure metadata for clients.
+        const body: SearchIdirUsersReqBodyDto = { requesterUserGuid: '12345678901234567890123456789012' };
+        const query: SearchIdirUsersReqQueryDto = { userId: 'fail' };
+        const soapResult = {
+            searchInternalAccountResult: {
+                code: 'Failed',
+                failureCode: 'SomeBusinessError',
+                message: 'Business error',
+                pagination: {},
+            },
+        };
+        soapClientMock.BCeIDService.BCeIDServiceSoap.searchInternalAccount.mockImplementation((payload, cb) => {
+            cb(null, soapResult);
+        });
+        await expect(service.searchIdirUsers(body, query)).rejects.toMatchObject({
+            status: HttpStatus.BAD_REQUEST,
+            response: {
+                status: HttpStatus.BAD_REQUEST,
+                code: 'Failed',
+                failureCode: 'SomeBusinessError',
+                message: 'Business error',
+            },
+        });
+    });
+});

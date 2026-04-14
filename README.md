@@ -9,7 +9,8 @@
 
 # Local Setup
 
--   Copy the content in the `local-dev.env` file and create a `.env` file. Update the value of the enviornment secrets (The secrets value can be found in our Openshift namespace e4bc30).
+-   Copy the content in the `local-dev.env` file and create a `.env` file. Update the value of the enviornment secrets (The secrets value can be found in our Openshift namespace e4bc30). 
+    The project reads environment variables using the dotenv package and NestJS's ConfigModule; This loads variables from your .env file into process.env automatically at startup. It access environment variable through process.env.[THE_VARIABLE].
 -   Install the packages `npm install  --ignore-scripts`
 -   Run the application `npm run start`
 
