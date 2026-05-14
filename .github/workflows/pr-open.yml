@@ -7,6 +7,7 @@ permissions:
   contents: read
   pull-requests: read
   packages: read
+  id-token: write
 
 concurrency:
   # PR open and close use the same group, allowing only one at a time
