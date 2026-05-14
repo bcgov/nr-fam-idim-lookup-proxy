@@ -30,7 +30,7 @@ jobs:
             build_context: ./backend
     steps:
       - uses: actions/checkout@v6
-      - uses: bcgov/action-builder-ghcr@4.4.0
+      - uses: bcgov/action-builder-ghcr@v4.4.0
         with:
           package: ${{ matrix.package }}
           tags: ${{ github.event.number }}
