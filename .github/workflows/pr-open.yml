@@ -54,7 +54,7 @@ jobs:
             parameters: -p MIN_REPLICAS=1 -p MAX_REPLICAS=2
             triggers: ('backend/')
     steps:
-      - uses: bcgov/action-deployer-openshift@v4.4.0
+      - uses: bcgov/action-deployer-openshift@v4.0.1
         with:
           file: ${{ matrix.file }}
           oc_namespace: ${{ vars.OC_NAMESPACE }}
