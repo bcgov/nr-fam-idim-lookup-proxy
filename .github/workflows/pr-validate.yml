@@ -15,7 +15,7 @@ concurrency:
 jobs:
   validate:
     name: Validate PR
-    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-validate.yml@v1.0.0
+    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-validate.yml@v1.2.1
     with:
       markdown_links: |
         - [Backend](https://${{ github.event.repository.name }}-${{ github.event.number }}-backend.apps.silver.devops.gov.bc.ca/api) available
